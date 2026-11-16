@@ -1,0 +1,1436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Linen Registry — Daily Stock & Inventory Tracker</title>
+
+  <!-- Google Fonts: Fredoka (400, 500, 600, 700) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- jsPDF & AutoTable for PDF Generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
+  <!-- SheetJS (XLSX) for Excel Generation -->
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+
+  <!-- Custom Theme Palette & Fredoka Typography Setup -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            fredoka: ['Fredoka', 'sans-serif'],
+          },
+          colors: {
+            palette: {
+              sky: '#7EBCE6',
+              indigo: '#160654',
+              plum: '#4E0547',
+              magenta: '#BF0275',
+              amber: '#F69B00',
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    /* Enforce Fredoka across every element */
+    * {
+      font-family: 'Fredoka', sans-serif !important;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #F4F8FC;
+      color: #160654;
+      overflow-x: hidden;
+    }
+
+    /* Hide default number input spinners for cleaner mobile/desktop controls */
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    input[type="number"] {
+      -moz-appearance: textfield;
+    }
+
+    /* Smooth custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #E9F2FA;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #7EBCE6;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #4E0547;
+    }
+
+    /* Subtle pop animation for status badges */
+    @keyframes popIn {
+      0% { transform: scale(0.92); opacity: 0.7; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .badge-animate {
+      animation: popIn 0.18s ease-out forwards;
+    }
+
+    /* Native Print / PDF Fallback Styling */
+    @media print {
+      body {
+        background: #FFFFFF !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      header {
+        background: #160654 !important;
+        color: #FFFFFF !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        position: static !important;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- Top Header Banner with Palette Gradient (#160654 -> #4E0547 -> #BF0275) -->
+  <header class="bg-gradient-to-r from-palette-indigo via-palette-plum to-palette-magenta text-white shadow-lg sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        
+        <!-- Brand & Title -->
+        <div class="flex items-center gap-3.5">
+          <div class="w-12 h-12 rounded-2xl bg-white/15 backdrop-blur-sm border border-white/25 flex items-center justify-center shadow-inner shrink-0">
+            <!-- Custom Linen Folded Towel SVG Icon -->
+            <svg class="w-7 h-7 text-palette-sky" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6z"/>
+              <path d="M4 13a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-3z"/>
+              <path d="M6 18v2a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-2"/>
+            </svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <h1 class="text-2xl sm:text-3xl font-bold tracking-tight">Linen Registry</h1>
+              <span class="text-xs font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-palette-amber text-palette-indigo shadow-sm">
+                Daily Tracker
+              </span>
+            </div>
+            <p class="text-xs sm:text-sm text-palette-sky/90 font-normal mt-0.5">
+              Update kuantiti harian, pantau stok &amp; eksport laporan terus ke PDF atau Excel (Google Drive)
+            </p>
+          </div>
+        </div>
+
+        <!-- Primary Action Buttons: PDF & Google Drive (Excel) -->
+        <div class="no-print flex flex-wrap items-center gap-2.5 sm:gap-3">
+          <button
+            id="btnGeneratePdf"
+            type="button"
+            class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl bg-white text-palette-indigo hover:bg-palette-sky hover:text-palette-indigo font-semibold text-sm sm:text-base shadow-md hover:shadow-lg transition-all active:scale-95 cursor-pointer"
+          >
+            <svg class="w-5 h-5 text-palette-magenta shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <path d="M9 15h6"/>
+              <path d="M9 11h6"/>
+            </svg>
+            <span>Generate as PDF</span>
+          </button>
+
+          <button
+            id="btnExportDriveExcel"
+            type="button"
+            class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl bg-palette-amber text-palette-indigo hover:brightness-105 font-bold text-sm sm:text-base shadow-md hover:shadow-lg transition-all active:scale-95 cursor-pointer"
+          >
+            <svg class="w-5 h-5 text-palette-indigo shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+            <span>Update to Google Drive (Excel)</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <!-- Top Control Bar: Calendar Date Picker & KPI Summary Cards -->
+    <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      
+      <!-- Card 1: Calendar Date Picker (Defaults to Current Date) -->
+      <div class="bg-white rounded-3xl p-4 sm:p-5 border-2 border-palette-sky/50 shadow-sm flex flex-col justify-between">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-semibold uppercase tracking-wider text-palette-plum">Registry Date</span>
+          <span id="todayBadge" class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-palette-sky/30 text-palette-indigo">
+            Today
+          </span>
+        </div>
+        <div class="relative">
+          <input
+            type="date"
+            id="registryDateInput"
+            aria-label="Select Registry Date"
+            class="w-full px-3.5 py-2.5 rounded-2xl bg-[#F4F8FC] border-2 border-palette-indigo/15 focus:border-palette-magenta focus:outline-none text-palette-indigo font-bold text-base sm:text-lg cursor-pointer transition-colors"
+          />
+        </div>
+        <p id="formattedDateDisplay" class="text-xs text-palette-indigo/70 mt-2 font-medium">
+          Loading date...
+        </p>
+      </div>
+
+      <!-- Card 2: Total Pieces Counted vs Max -->
+      <div class="bg-white rounded-3xl p-4 sm:p-5 border-2 border-palette-indigo/10 shadow-sm flex flex-col justify-between">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold uppercase tracking-wider text-palette-indigo/70">Total Updated Qty</span>
+          <span class="w-8 h-8 rounded-xl bg-palette-sky/30 text-palette-indigo flex items-center justify-center">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+              <path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/>
+            </svg>
+          </span>
+        </div>
+        <div class="my-1">
+          <span id="kpiTotalQty" class="text-3xl font-bold text-palette-indigo">0</span>
+          <span id="kpiMaxQtyDisplay" class="text-sm font-medium text-palette-indigo/60">/ 300 pcs max</span>
+        </div>
+        <p id="kpiItemsUpdated" class="text-xs font-medium text-palette-plum">
+          0 daripada 19 item telah dikemaskini
+        </p>
+      </div>
+
+      <!-- Card 3: Low Stock Indicator Count (#F69B00 Amber) -->
+      <div class="bg-white rounded-3xl p-4 sm:p-5 border-2 border-palette-amber/50 shadow-sm flex flex-col justify-between">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold uppercase tracking-wider text-palette-amber">Low Stock Alert</span>
+          <span class="w-8 h-8 rounded-xl bg-palette-amber/20 text-palette-amber flex items-center justify-center">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            </svg>
+          </span>
+        </div>
+        <div class="my-1 flex items-baseline gap-2">
+          <span id="kpiLowStock" class="text-3xl font-bold text-palette-amber">0</span>
+          <span class="text-sm font-medium text-palette-indigo/70">items</span>
+        </div>
+        <p class="text-xs font-medium text-palette-indigo/65">
+          Kuantiti kurang daripada had maksimum
+        </p>
+      </div>
+
+      <!-- Card 4: Exceed Stock Indicator Count (#BF0275 Magenta) -->
+      <div class="bg-white rounded-3xl p-4 sm:p-5 border-2 border-palette-magenta/40 shadow-sm flex flex-col justify-between">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold uppercase tracking-wider text-palette-magenta">Exceed Stock Alert</span>
+          <span class="w-8 h-8 rounded-xl bg-palette-magenta/15 text-palette-magenta flex items-center justify-center">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+          </span>
+        </div>
+        <div class="my-1 flex items-baseline gap-2">
+          <span id="kpiExceedStock" class="text-3xl font-bold text-palette-magenta">0</span>
+          <span class="text-sm font-medium text-palette-indigo/70">items</span>
+        </div>
+        <p class="text-xs font-medium text-palette-indigo/65">
+          Kuantiti melebihi had maksimum
+        </p>
+      </div>
+
+    </section>
+
+    <!-- Filter, Search & Quick Tools Bar -->
+    <section class="no-print bg-white rounded-3xl p-4 shadow-sm border border-palette-indigo/10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3.5">
+      
+      <!-- Status Filter Pills -->
+      <div class="flex flex-wrap items-center gap-2" id="filterPillsContainer">
+        <button data-filter="all" type="button" class="filter-pill active px-3.5 py-2 rounded-2xl text-xs sm:text-sm font-semibold bg-palette-indigo text-white transition-all cursor-pointer">
+          All Items (19)
+        </button>
+        <button data-filter="low" type="button" class="filter-pill px-3.5 py-2 rounded-2xl text-xs sm:text-sm font-semibold bg-[#F4F8FC] text-palette-indigo hover:bg-palette-amber/20 transition-all cursor-pointer">
+          Low Stock
+        </button>
+        <button data-filter="exceed" type="button" class="filter-pill px-3.5 py-2 rounded-2xl text-xs sm:text-sm font-semibold bg-[#F4F8FC] text-palette-indigo hover:bg-palette-magenta/15 transition-all cursor-pointer">
+          Exceed Stock
+        </button>
+        <button data-filter="optimal" type="button" class="filter-pill px-3.5 py-2 rounded-2xl text-xs sm:text-sm font-semibold bg-[#F4F8FC] text-palette-indigo hover:bg-palette-sky/30 transition-all cursor-pointer">
+          Optimal (Max)
+        </button>
+        <button data-filter="pending" type="button" class="filter-pill px-3.5 py-2 rounded-2xl text-xs sm:text-sm font-semibold bg-[#F4F8FC] text-palette-indigo hover:bg-palette-indigo/10 transition-all cursor-pointer">
+          Pending
+        </button>
+      </div>
+
+      <!-- Search & Quick Fill Actions -->
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+        <div class="relative flex-1 sm:w-56">
+          <svg class="w-4 h-4 text-palette-indigo/50 absolute left-3.5 top-1/2 -translate-y-1/2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="Cari item linen..."
+            class="w-full pl-9 pr-3.5 py-2 rounded-2xl bg-[#F4F8FC] border border-palette-indigo/15 focus:border-palette-magenta focus:outline-none text-sm text-palette-indigo placeholder:text-palette-indigo/40"
+          />
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button
+            id="btnFillMax"
+            type="button"
+            title="Isi semua kuantiti mengikut had maksimum"
+            class="flex-1 sm:flex-initial px-3.5 py-2 rounded-2xl bg-palette-sky/30 hover:bg-palette-sky/50 text-palette-indigo font-semibold text-xs sm:text-sm transition-all cursor-pointer"
+          >
+            Fill All Max
+          </button>
+          <button
+            id="btnResetAll"
+            type="button"
+            title="Kosongkan semua input untuk tarikh ini"
+            class="flex-1 sm:flex-initial px-3.5 py-2 rounded-2xl bg-palette-magenta/10 hover:bg-palette-magenta/20 text-palette-magenta font-semibold text-xs sm:text-sm transition-all cursor-pointer"
+          >
+            Reset
+          </button>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Main Linen Registry Table / Card List -->
+    <section class="bg-white rounded-3xl shadow-md border border-palette-indigo/10 overflow-hidden">
+      
+      <!-- Desktop / Tablet Responsive Table Header -->
+      <div class="hidden md:grid md:grid-cols-12 bg-palette-indigo text-white px-6 py-4 text-xs font-semibold uppercase tracking-wider items-center">
+        <div class="col-span-1">#</div>
+        <div class="col-span-2">Date</div>
+        <div class="col-span-3">Linen Item</div>
+        <div class="col-span-1 text-center">Max Qty</div>
+        <div class="col-span-3 text-center">Update Quantity (pcs)</div>
+        <div class="col-span-2 text-right">Stock Indicator</div>
+      </div>
+
+      <!-- Registry Rows Container -->
+      <div id="registryRowsContainer" class="divide-y divide-palette-indigo/10">
+        <!-- Populated dynamically via JavaScript -->
+      </div>
+
+      <!-- Empty Filter State -->
+      <div id="emptyFilterState" class="hidden py-12 px-4 text-center">
+        <div class="w-14 h-14 mx-auto rounded-2xl bg-palette-sky/25 text-palette-indigo flex items-center justify-center mb-3">
+          <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+        </div>
+        <p class="text-base font-semibold text-palette-indigo">Tiada item linen sepadan dengan carian atau penapis ini.</p>
+        <p class="text-xs text-palette-indigo/60 mt-1">Cuba tukar penapis status atau kosongkan kata kunci carian.</p>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="no-print max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 text-center sm:flex sm:items-center sm:justify-between text-xs text-palette-indigo/60">
+    <p class="font-semibold">Made by Ezlyana 2026</p>
+    <div class="flex items-center justify-center gap-1.5 mt-2 sm:mt-0">
+      <span class="w-3 h-3 rounded-full bg-palette-sky inline-block"></span>
+      <span class="w-3 h-3 rounded-full bg-palette-indigo inline-block"></span>
+      <span class="w-3 h-3 rounded-full bg-palette-plum inline-block"></span>
+      <span class="w-3 h-3 rounded-full bg-palette-magenta inline-block"></span>
+      <span class="w-3 h-3 rounded-full bg-palette-amber inline-block"></span>
+    </div>
+  </footer>
+
+  <!-- Custom Modal: Google Drive (Excel) Upload Helper -->
+  <div id="driveModal" class="no-print fixed inset-0 z-50 hidden items-center justify-center bg-palette-indigo/60 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border-2 border-palette-sky badge-animate">
+      <div class="flex items-start justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-2xl bg-palette-amber/20 text-palette-amber flex items-center justify-center shrink-0">
+            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-lg font-bold text-palette-indigo">Excel File Ready!</h3>
+            <p class="text-xs text-palette-plum font-medium">Fail Excel telah dijana untuk Google Drive</p>
+          </div>
+        </div>
+        <button id="closeDriveModal" type="button" class="p-1.5 rounded-xl text-palette-indigo/50 hover:text-palette-magenta hover:bg-palette-magenta/10 transition-colors cursor-pointer">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="mt-4 p-3.5 rounded-2xl bg-[#F4F8FC] border border-palette-sky/50 space-y-1.5">
+        <p class="text-xs font-semibold uppercase tracking-wider text-palette-indigo/60">Nama Fail Dijana:</p>
+        <p id="generatedExcelFilename" class="text-sm font-bold text-palette-indigo break-all">Linen_Registry.xlsx</p>
+        <p class="text-xs text-palette-indigo/70 pt-1">
+          Klik <strong>Open Google Drive</strong> untuk muat naik fail Excel ini, atau klik <strong>Copy Table</strong> untuk tampal terus ke Google Sheets.
+        </p>
+      </div>
+
+      <!-- Optional Custom Google Drive Folder Link Input -->
+      <div class="mt-3.5">
+        <label for="customDriveUrlInput" class="block text-xs font-semibold text-palette-indigo mb-1">
+          Pautan Folder Google Drive (Pilihan):
+        </label>
+        <input
+          type="url"
+          id="customDriveUrlInput"
+          placeholder="https://drive.google.com/drive/my-drive"
+          value="https://drive.google.com/drive/my-drive"
+          class="w-full px-3.5 py-2 rounded-2xl bg-[#F4F8FC] border border-palette-indigo/15 focus:border-palette-magenta focus:outline-none text-xs text-palette-indigo"
+        />
+      </div>
+
+      <div class="mt-5 flex flex-col gap-2">
+        <div class="flex flex-col sm:flex-row items-center gap-2">
+          <a
+            id="openGoogleDriveLink"
+            href="https://drive.google.com/drive/my-drive"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="w-full sm:flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl bg-gradient-to-r from-palette-indigo to-palette-magenta text-white font-semibold text-sm shadow-md hover:opacity-95 transition-all"
+          >
+            <span>Open Google Drive</span>
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+            </svg>
+          </a>
+          <button
+            id="btnCopySheetData"
+            type="button"
+            class="w-full sm:w-auto px-4 py-2.5 rounded-2xl bg-palette-amber text-palette-indigo font-bold text-sm hover:brightness-105 transition-all cursor-pointer"
+          >
+            Copy Table
+          </button>
+        </div>
+        <button
+          id="doneDriveModal"
+          type="button"
+          class="w-full px-4 py-2 rounded-2xl bg-palette-sky/30 hover:bg-palette-sky/50 text-palette-indigo font-semibold text-xs sm:text-sm transition-colors cursor-pointer"
+        >
+          Selesai
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Banner (Replaces browser alert) -->
+  <div id="toastNotification" class="no-print fixed bottom-5 right-5 z-50 hidden transform transition-all duration-300">
+    <div class="flex items-center gap-3 px-4 py-3 rounded-2xl bg-palette-indigo text-white shadow-xl border border-palette-sky/40 max-w-sm">
+      <span id="toastIcon" class="w-7 h-7 rounded-xl bg-palette-amber text-palette-indigo flex items-center justify-center font-bold shrink-0">
+        ✓
+      </span>
+      <p id="toastMessage" class="text-xs sm:text-sm font-medium leading-snug"></p>
+    </div>
+  </div>
+
+  <!-- Application Logic -->
+  <script>
+    /**
+     * Master list of all 19 Linen Items and their exact Maximum Quantities
+     */
+    const LINEN_ITEMS = [
+      { id: 'towel_bath', name: 'Towel Bath', max: 40, category: 'Bath' },
+      { id: 'blanket_adult', name: 'Blanket Adult', max: 16, category: 'Bedding' },
+      { id: 'linen_protector', name: 'Linen Protector', max: 4, category: 'Bedding' },
+      { id: 'sheet_bed', name: 'Sheet Bed', max: 16, category: 'Bedding' },
+      { id: 'pillowcase_adult', name: 'Pillowcase Adult', max: 16, category: 'Bedding' },
+      { id: 'sarong_female_m', name: 'Sarong Adult Female (M)', max: 16, category: 'Adult Female' },
+      { id: 'sarong_female_l', name: 'Sarong Adult Female (L)', max: 16, category: 'Adult Female' },
+      { id: 'sarong_male_m', name: 'Sarong Adult Male (M)', max: 16, category: 'Adult Male' },
+      { id: 'sarong_male_l', name: 'Sarong Adult Male (L)', max: 16, category: 'Adult Male' },
+      { id: 'baju_female_m', name: 'Baju Adult Female (M)', max: 16, category: 'Adult Female' },
+      { id: 'baju_female_l', name: 'Baju Adult Female (L)', max: 16, category: 'Adult Female' },
+      { id: 'baju_male_m', name: 'Baju Adult Male (M)', max: 16, category: 'Adult Male' },
+      { id: 'baju_male_l', name: 'Baju Adult Male (L)', max: 16, category: 'Adult Male' },
+      { id: 'seluar_female_m', name: 'Seluar Adult Female (M)', max: 16, category: 'Adult Female' },
+      { id: 'seluar_female_l', name: 'Seluar Adult Female (L)', max: 16, category: 'Adult Female' },
+      { id: 'seluar_male_m', name: 'Seluar Adult Male (M)', max: 16, category: 'Adult Male' },
+      { id: 'seluar_male_l', name: 'Seluar Adult Male (L)', max: 16, category: 'Adult Male' },
+      { id: 'baju_child', name: 'Baju Child', max: 8, category: 'Child' },
+      { id: 'seluar_child', name: 'Seluar Child', max: 8, category: 'Child' }
+    ];
+
+    const STORAGE_KEY_PREFIX = 'linen_registry_records_v2_';
+    const DRIVE_URL_STORAGE_KEY = 'linen_registry_drive_url';
+
+    // Application State
+    let selectedDate = getLocalTodayISO();
+    let quantitiesById = {}; // { [itemId]: number | null }
+    let activeFilter = 'all';
+    let searchQuery = '';
+    let toastTimer = null;
+
+    /**
+     * Safe storage helpers (prevents SecurityError in restricted iframes)
+     */
+    function safeStorageGet(key) {
+      try {
+        return window.localStorage ? window.localStorage.getItem(key) : null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function safeStorageSet(key, value) {
+      try {
+        if (window.localStorage) {
+          window.localStorage.setItem(key, value);
+        }
+      } catch (e) {
+        // Ignore storage restriction in private/sandbox mode
+      }
+    }
+
+    /**
+     * Returns today's local date in YYYY-MM-DD format
+     */
+    function getLocalTodayISO() {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    /**
+     * Formats YYYY-MM-DD into a human-readable date string
+     */
+    function formatDisplayDate(isoDate) {
+      if (!isoDate) return '-';
+      const parts = isoDate.split('-');
+      if (parts.length !== 3) return isoDate;
+      const dateObj = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+      return dateObj.toLocaleDateString('en-MY', {
+        weekday: 'long',
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+      });
+    }
+
+    /**
+     * Formats YYYY-MM-DD into DD/MM/YYYY for compact table display
+     */
+    function formatShortDate(isoDate) {
+      if (!isoDate) return '-';
+      const parts = isoDate.split('-');
+      if (parts.length !== 3) return isoDate;
+      return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+
+    /**
+     * Loads saved quantities for a specific date from localStorage
+     */
+    function loadDateQuantities(dateStr) {
+      const fresh = {};
+      LINEN_ITEMS.forEach(item => {
+        fresh[item.id] = null;
+      });
+
+      const raw = safeStorageGet(STORAGE_KEY_PREFIX + dateStr);
+      if (raw) {
+        try {
+          const parsed = JSON.parse(raw);
+          if (parsed && typeof parsed === 'object') {
+            LINEN_ITEMS.forEach(item => {
+              if (parsed[item.id] !== undefined && parsed[item.id] !== null && parsed[item.id] !== '') {
+                const num = Number(parsed[item.id]);
+                fresh[item.id] = Number.isNaN(num) ? null : Math.max(0, Math.floor(num));
+              }
+            });
+          }
+        } catch (e) {
+          // Ignore malformed JSON
+        }
+      }
+      quantitiesById = fresh;
+    }
+
+    /**
+     * Saves current date quantities to localStorage
+     */
+    function saveDateQuantities() {
+      safeStorageSet(STORAGE_KEY_PREFIX + selectedDate, JSON.stringify(quantitiesById));
+    }
+
+    /**
+     * Determines stock status for an item based on updated quantity vs max
+     */
+    function getStockStatus(qty, max) {
+      if (qty === null || qty === undefined || qty === '') {
+        return {
+          key: 'pending',
+          label: 'Pending',
+          shortLabel: 'Pending',
+          diff: 0
+        };
+      }
+      const numericQty = Number(qty);
+      const diff = numericQty - max;
+
+      if (numericQty < max) {
+        return {
+          key: 'low',
+          label: `Low Stock (${diff})`,
+          shortLabel: 'Low Stock',
+          diff
+        };
+      }
+      if (numericQty > max) {
+        return {
+          key: 'exceed',
+          label: `Exceed Stock (+${diff})`,
+          shortLabel: 'Exceed Stock',
+          diff
+        };
+      }
+      return {
+        key: 'optimal',
+        label: 'Optimal (Max)',
+        shortLabel: 'Optimal',
+        diff: 0
+      };
+    }
+
+    /**
+     * Renders the stock indicator badge HTML using the custom color palette
+     */
+    function renderStatusBadgeHTML(status) {
+      if (status.key === 'low') {
+        return `
+          <span class="badge-animate inline-flex items-center gap-1.5 px-3 py-1.5 rounded-2xl text-xs font-bold bg-palette-amber/20 text-[#B86E00] border border-palette-amber/50">
+            <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6">
+              <path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            </svg>
+            <span>${status.label}</span>
+          </span>
+        `;
+      }
+      if (status.key === 'exceed') {
+        return `
+          <span class="badge-animate inline-flex items-center gap-1.5 px-3 py-1.5 rounded-2xl text-xs font-bold bg-palette-magenta/15 text-palette-magenta border border-palette-magenta/40">
+            <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <span>${status.label}</span>
+          </span>
+        `;
+      }
+      if (status.key === 'optimal') {
+        return `
+          <span class="badge-animate inline-flex items-center gap-1.5 px-3 py-1.5 rounded-2xl text-xs font-bold bg-palette-sky/35 text-palette-indigo border border-palette-sky">
+            <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            <span>${status.label}</span>
+          </span>
+        `;
+      }
+      return `
+        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-2xl text-xs font-semibold bg-[#F4F8FC] text-palette-indigo/50 border border-palette-indigo/10">
+          <span>Belum Diisi</span>
+        </span>
+      `;
+    }
+
+    /**
+     * Updates top KPI summary cards and filter pill counts
+     */
+    function updateSummaryKPIs() {
+      let totalPieces = 0;
+      let updatedCount = 0;
+      let lowCount = 0;
+      let exceedCount = 0;
+      let optimalCount = 0;
+      let pendingCount = 0;
+
+      LINEN_ITEMS.forEach(item => {
+        const qty = quantitiesById[item.id];
+        const status = getStockStatus(qty, item.max);
+
+        if (qty !== null && qty !== undefined && qty !== '') {
+          totalPieces += Number(qty);
+          updatedCount++;
+        }
+
+        if (status.key === 'low') lowCount++;
+        else if (status.key === 'exceed') exceedCount++;
+        else if (status.key === 'optimal') optimalCount++;
+        else pendingCount++;
+      });
+
+      const totalMaxCapacity = LINEN_ITEMS.reduce((sum, item) => sum + item.max, 0);
+
+      document.getElementById('kpiTotalQty').textContent = totalPieces;
+      document.getElementById('kpiMaxQtyDisplay').textContent = `/ ${totalMaxCapacity} pcs max`;
+      document.getElementById('kpiItemsUpdated').textContent = `${updatedCount} daripada ${LINEN_ITEMS.length} item telah dikemaskini`;
+      document.getElementById('kpiLowStock').textContent = lowCount;
+      document.getElementById('kpiExceedStock').textContent = exceedCount;
+
+      // Update filter pills labels with live counts
+      const pills = document.querySelectorAll('.filter-pill');
+      pills.forEach(pill => {
+        const filter = pill.getAttribute('data-filter');
+        if (filter === 'all') pill.textContent = `All Items (${LINEN_ITEMS.length})`;
+        if (filter === 'low') pill.textContent = `Low Stock (${lowCount})`;
+        if (filter === 'exceed') pill.textContent = `Exceed Stock (${exceedCount})`;
+        if (filter === 'optimal') pill.textContent = `Optimal (${optimalCount})`;
+        if (filter === 'pending') pill.textContent = `Pending (${pendingCount})`;
+      });
+    }
+
+    /**
+     * Updates a single row's indicator badge & input border without re-rendering the entire list
+     */
+    function updateSingleRowUI(itemId) {
+      const item = LINEN_ITEMS.find(i => i.id === itemId);
+      if (!item) return;
+
+      const qty = quantitiesById[itemId];
+      const status = getStockStatus(qty, item.max);
+
+      const badgeSlot = document.getElementById(`badge_${itemId}`);
+      if (badgeSlot) {
+        badgeSlot.innerHTML = renderStatusBadgeHTML(status);
+      }
+
+      const inputEl = document.getElementById(`input_${itemId}`);
+      if (inputEl) {
+        inputEl.classList.remove(
+          'border-palette-amber',
+          'bg-palette-amber/10',
+          'border-palette-magenta',
+          'bg-palette-magenta/10',
+          'border-palette-sky',
+          'bg-palette-sky/15',
+          'border-palette-indigo/20',
+          'bg-[#F4F8FC]'
+        );
+
+        if (status.key === 'low') {
+          inputEl.classList.add('border-palette-amber', 'bg-palette-amber/10');
+        } else if (status.key === 'exceed') {
+          inputEl.classList.add('border-palette-magenta', 'bg-palette-magenta/10');
+        } else if (status.key === 'optimal') {
+          inputEl.classList.add('border-palette-sky', 'bg-palette-sky/15');
+        } else {
+          inputEl.classList.add('border-palette-indigo/20', 'bg-[#F4F8FC]');
+        }
+      }
+
+      updateSummaryKPIs();
+    }
+
+    /**
+     * Handles quantity change for an item
+     */
+    function setItemQuantity(itemId, rawValue) {
+      if (rawValue === '' || rawValue === null || rawValue === undefined) {
+        quantitiesById[itemId] = null;
+      } else {
+        const parsed = parseInt(rawValue, 10);
+        quantitiesById[itemId] = Number.isNaN(parsed) ? null : Math.max(0, parsed);
+      }
+      saveDateQuantities();
+      updateSingleRowUI(itemId);
+    }
+
+    /**
+     * Increments or decrements an item's quantity by delta (+1 / -1)
+     */
+    function adjustItemQuantity(itemId, delta) {
+      const current = quantitiesById[itemId];
+      const baseValue = (current === null || current === undefined) ? 0 : Number(current);
+      const nextValue = Math.max(0, baseValue + delta);
+      quantitiesById[itemId] = nextValue;
+
+      const inputEl = document.getElementById(`input_${itemId}`);
+      if (inputEl) {
+        inputEl.value = nextValue;
+      }
+
+      saveDateQuantities();
+      updateSingleRowUI(itemId);
+    }
+
+    /**
+     * Renders the full list of Linen Items based on active filters & search query
+     */
+    function renderRegistryRows() {
+      const container = document.getElementById('registryRowsContainer');
+      const emptyState = document.getElementById('emptyFilterState');
+      const shortDate = formatShortDate(selectedDate);
+
+      const filteredItems = LINEN_ITEMS.map((item, idx) => ({ ...item, index: idx + 1 })).filter(item => {
+        const qty = quantitiesById[item.id];
+        const status = getStockStatus(qty, item.max);
+
+        const matchesFilter = activeFilter === 'all' || status.key === activeFilter;
+        const matchesSearch =
+          !searchQuery ||
+          item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.category.toLowerCase().includes(searchQuery.toLowerCase());
+
+        return matchesFilter && matchesSearch;
+      });
+
+      if (filteredItems.length === 0) {
+        container.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        updateSummaryKPIs();
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+
+      container.innerHTML = filteredItems
+        .map(item => {
+          const qty = quantitiesById[item.id];
+          const displayVal = qty === null || qty === undefined ? '' : qty;
+          const status = getStockStatus(qty, item.max);
+
+          let inputStyle = 'border-palette-indigo/20 bg-[#F4F8FC]';
+          if (status.key === 'low') inputStyle = 'border-palette-amber bg-palette-amber/10';
+          else if (status.key === 'exceed') inputStyle = 'border-palette-magenta bg-palette-magenta/10';
+          else if (status.key === 'optimal') inputStyle = 'border-palette-sky bg-palette-sky/15';
+
+          return `
+            <div class="p-4 md:px-6 md:py-3.5 hover:bg-[#F8FBFF] transition-colors">
+              <div class="grid grid-cols-1 md:grid-cols-12 gap-3 md:gap-4 items-center">
+                
+                <!-- Index Number (Desktop) -->
+                <div class="hidden md:block md:col-span-1 text-sm font-bold text-palette-indigo/50">
+                  ${String(item.index).padStart(2, '0')}
+                </div>
+
+                <!-- Date Column -->
+                <div class="hidden md:flex md:col-span-2 items-center gap-1.5 text-xs font-semibold text-palette-plum">
+                  <span class="px-2.5 py-1 rounded-xl bg-palette-sky/20 text-palette-indigo">
+                    ${shortDate}
+                  </span>
+                </div>
+
+                <!-- Item Name & Category -->
+                <div class="md:col-span-3 flex items-center justify-between md:justify-start gap-2">
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <span class="md:hidden text-xs font-bold px-2 py-0.5 rounded-lg bg-palette-indigo/10 text-palette-indigo">
+                        #${String(item.index).padStart(2, '0')}
+                      </span>
+                      <h3 class="text-base font-bold text-palette-indigo leading-tight">${item.name}</h3>
+                    </div>
+                    <div class="flex items-center gap-2 mt-1">
+                      <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-palette-plum/10 text-palette-plum">
+                        ${item.category}
+                      </span>
+                      <span class="md:hidden text-[11px] font-semibold text-palette-indigo/60">
+                        • ${shortDate}
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Mobile Max Badge -->
+                  <div class="md:hidden text-right">
+                    <span class="text-[11px] uppercase tracking-wider text-palette-indigo/50 block">Max</span>
+                    <span class="text-sm font-bold px-2.5 py-1 rounded-xl bg-palette-indigo text-white inline-block">
+                      ${item.max} pcs
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Max Qty Column (Desktop) -->
+                <div class="hidden md:flex md:col-span-1 justify-center">
+                  <span class="px-3 py-1 rounded-xl bg-palette-indigo/10 text-palette-indigo font-bold text-sm">
+                    ${item.max}
+                  </span>
+                </div>
+
+                <!-- Quantity Input Stepper Controls -->
+                <div class="md:col-span-3 flex items-center justify-between md:justify-center gap-2">
+                  <span class="md:hidden text-xs font-semibold text-palette-indigo/70">Kuantiti:</span>
+                  <div class="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      data-action="dec"
+                      data-id="${item.id}"
+                      aria-label="Decrease ${item.name}"
+                      class="w-10 h-10 rounded-2xl bg-palette-plum/10 hover:bg-palette-plum hover:text-white text-palette-plum font-bold text-lg flex items-center justify-center transition-all active:scale-90 cursor-pointer select-none"
+                    >
+                      −
+                    </button>
+                    <input
+                      type="number"
+                      min="0"
+                      step="1"
+                      inputmode="numeric"
+                      id="input_${item.id}"
+                      data-id="${item.id}"
+                      value="${displayVal}"
+                      placeholder="0"
+                      aria-label="Quantity for ${item.name}"
+                      class="qty-input w-20 h-10 text-center rounded-2xl border-2 ${inputStyle} focus:border-palette-indigo focus:outline-none text-base font-bold text-palette-indigo transition-colors"
+                    />
+                    <button
+                      type="button"
+                      data-action="inc"
+                      data-id="${item.id}"
+                      aria-label="Increase ${item.name}"
+                      class="w-10 h-10 rounded-2xl bg-palette-sky/35 hover:bg-palette-indigo hover:text-white text-palette-indigo font-bold text-lg flex items-center justify-center transition-all active:scale-90 cursor-pointer select-none"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Stock Indicator Badge -->
+                <div id="badge_${item.id}" class="md:col-span-2 flex items-center justify-between md:justify-end pt-2 md:pt-0 border-t md:border-t-0 border-palette-indigo/5">
+                  <span class="md:hidden text-xs font-semibold text-palette-indigo/60">Status Stok:</span>
+                  ${renderStatusBadgeHTML(status)}
+                </div>
+
+              </div>
+            </div>
+          `;
+        })
+        .join('');
+
+      updateSummaryKPIs();
+    }
+
+    /**
+     * Shows a sleek non-blocking toast message
+     */
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toastNotification');
+      const toastMsg = document.getElementById('toastMessage');
+      const toastIcon = document.getElementById('toastIcon');
+
+      toastMsg.textContent = message;
+      if (type === 'warning') {
+        toastIcon.textContent = '!';
+        toastIcon.className = 'w-7 h-7 rounded-xl bg-palette-magenta text-white flex items-center justify-center font-bold shrink-0';
+      } else {
+        toastIcon.textContent = '✓';
+        toastIcon.className = 'w-7 h-7 rounded-xl bg-palette-amber text-palette-indigo flex items-center justify-center font-bold shrink-0';
+      }
+
+      toast.classList.remove('hidden');
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 4000);
+    }
+
+    /**
+     * Helper to trigger safe file download via Blob + temporary anchor element
+     */
+    function triggerBlobDownload(blob, filename) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, 250);
+    }
+
+    /**
+     * Collects structured report rows for PDF, Excel & Clipboard
+     */
+    function getReportDataset() {
+      const shortDate = formatShortDate(selectedDate);
+      let totalMax = 0;
+      let totalUpdated = 0;
+      let lowCount = 0;
+      let exceedCount = 0;
+
+      const rows = LINEN_ITEMS.map((item, idx) => {
+        const qty = quantitiesById[item.id];
+        const hasValue = qty !== null && qty !== undefined && qty !== '';
+        const numQty = hasValue ? Number(qty) : 0;
+        const status = getStockStatus(qty, item.max);
+
+        totalMax += item.max;
+        if (hasValue) totalUpdated += numQty;
+        if (status.key === 'low') lowCount++;
+        if (status.key === 'exceed') exceedCount++;
+
+        return {
+          no: idx + 1,
+          date: shortDate,
+          itemName: item.name,
+          category: item.category,
+          maxQty: item.max,
+          updatedQtyDisplay: hasValue ? `${numQty} pcs` : 'Pending',
+          updatedQtyNumeric: hasValue ? numQty : '',
+          variance: hasValue ? numQty - item.max : '',
+          statusLabel: hasValue ? status.label : 'Pending'
+        };
+      });
+
+      return { rows, totalMax, totalUpdated, lowCount, exceedCount, shortDate };
+    }
+
+    /**
+     * Generates and downloads a formatted PDF report (with automatic native print fallback)
+     */
+    function generatePdfReport() {
+      const { rows, totalMax, totalUpdated, lowCount, exceedCount, shortDate } = getReportDataset();
+      const filename = `Linen_Registry_${selectedDate}.pdf`;
+
+      try {
+        if (window.jspdf && typeof window.jspdf.jsPDF === 'function') {
+          const { jsPDF } = window.jspdf;
+          const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+          // Header Banner using Palette Indigo (#160654) & Magenta accent (#BF0275)
+          doc.setFillColor(22, 6, 84);
+          doc.rect(0, 0, 210, 34, 'F');
+          doc.setFillColor(191, 2, 117);
+          doc.rect(0, 34, 210, 2.5, 'F');
+
+          doc.setTextColor(255, 255, 255);
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(18);
+          doc.text('LINEN REGISTRY REPORT', 14, 15);
+
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(10);
+          doc.setTextColor(126, 188, 230);
+          doc.text(`Registry Date: ${formatDisplayDate(selectedDate)} (${selectedDate})`, 14, 23);
+          doc.text(`Generated: ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`, 14, 29);
+
+          // Summary Strip Box
+          doc.setFillColor(244, 248, 252);
+          doc.roundedRect(14, 41, 182, 14, 3, 3, 'F');
+          doc.setTextColor(22, 6, 84);
+          doc.setFontSize(9.5);
+          doc.setFont('helvetica', 'bold');
+          doc.text(`Total Counted: ${totalUpdated} / ${totalMax} pcs`, 18, 49.5);
+          doc.setTextColor(214, 128, 0);
+          doc.text(`Low Stock: ${lowCount} items`, 95, 49.5);
+          doc.setTextColor(191, 2, 117);
+          doc.text(`Exceed Stock: ${exceedCount} items`, 148, 49.5);
+
+          if (typeof doc.autoTable === 'function') {
+            const tableBody = rows.map(r => [
+              String(r.no),
+              r.date,
+              r.itemName,
+              `${r.maxQty} pcs`,
+              r.updatedQtyDisplay,
+              r.statusLabel
+            ]);
+
+            doc.autoTable({
+              startY: 60,
+              head: [['#', 'Date', 'Linen Item', 'Max Qty', 'Updated Qty', 'Stock Indicator']],
+              body: tableBody,
+              theme: 'grid',
+              headStyles: {
+                fillColor: [78, 5, 71],
+                textColor: [255, 255, 255],
+                fontStyle: 'bold',
+                fontSize: 9,
+                halign: 'left'
+              },
+              styles: {
+                fontSize: 8.5,
+                cellPadding: 2.8,
+                textColor: [22, 6, 84]
+              },
+              columnStyles: {
+                0: { cellWidth: 10, halign: 'center' },
+                1: { cellWidth: 25 },
+                2: { cellWidth: 58, fontStyle: 'bold' },
+                3: { cellWidth: 24, halign: 'center' },
+                4: { cellWidth: 28, halign: 'center', fontStyle: 'bold' },
+                5: { cellWidth: 37, fontStyle: 'bold' }
+              },
+              didParseCell: function (data) {
+                if (data.section === 'body' && data.column.index === 5) {
+                  const val = String(data.cell.raw || '');
+                  if (val.startsWith('Low Stock')) {
+                    data.cell.styles.textColor = [196, 114, 0];
+                    data.cell.styles.fillColor = [255, 248, 232];
+                  } else if (val.startsWith('Exceed Stock')) {
+                    data.cell.styles.textColor = [191, 2, 117];
+                    data.cell.styles.fillColor = [253, 236, 246];
+                  } else if (val.startsWith('Optimal')) {
+                    data.cell.styles.textColor = [22, 6, 84];
+                    data.cell.styles.fillColor = [232, 245, 253];
+                  } else {
+                    data.cell.styles.textColor = [130, 140, 160];
+                  }
+                }
+              }
+            });
+          } else {
+            // Clean manual table fallback if AutoTable plugin wasn't loaded
+            let yPos = 64;
+            doc.setFontSize(8.5);
+            doc.setFont('helvetica', 'bold');
+            doc.text('#   Date         Linen Item                       Max     Updated     Indicator', 14, yPos);
+            yPos += 5;
+            doc.setFont('helvetica', 'normal');
+            rows.forEach(r => {
+              doc.text(
+                `${String(r.no).padEnd(4)}${r.date.padEnd(13)}${r.itemName.padEnd(32)}${String(r.maxQty).padEnd(8)}${r.updatedQtyDisplay.padEnd(12)}${r.statusLabel}`,
+                14,
+                yPos
+              );
+              yPos += 5.5;
+            });
+          }
+
+          const pdfBlob = doc.output('blob');
+          triggerBlobDownload(pdfBlob, filename);
+          showToast(`PDF berjaya dijana: ${filename}`);
+          return;
+        }
+      } catch (err) {
+        // Fallback to native print-to-PDF below
+      }
+
+      // Guaranteed zero-dependency Print / Save as PDF fallback
+      showToast('Membuka tetingkap Save as PDF...', 'success');
+      setTimeout(() => {
+        window.print();
+      }, 250);
+    }
+
+    /**
+     * Escapes XML special characters for native SpreadsheetML fallback
+     */
+    function escapeXml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&apos;');
+    }
+
+    /**
+     * Generates an Excel file (.xlsx via SheetJS or native SpreadsheetML .xls fallback)
+     * and opens the Google Drive upload helper modal
+     */
+    function exportExcelForDrive() {
+      const { rows, totalMax, totalUpdated, shortDate } = getReportDataset();
+      let filename = `Linen_Registry_${selectedDate}.xlsx`;
+      let downloaded = false;
+
+      // Attempt 1: SheetJS (.xlsx)
+      try {
+        if (typeof XLSX !== 'undefined' && XLSX.utils) {
+          const sheetRows = [
+            ['LINEN REGISTRY DAILY REPORT'],
+            ['Date', formatDisplayDate(selectedDate), 'ISO Date', selectedDate],
+            [],
+            ['No.', 'Date', 'Linen Item', 'Category', 'Max Qty (pcs)', 'Updated Qty (pcs)', 'Variance', 'Stock Indicator']
+          ];
+
+          rows.forEach(r => {
+            sheetRows.push([
+              r.no,
+              r.date,
+              r.itemName,
+              r.category,
+              r.maxQty,
+              r.updatedQtyNumeric,
+              r.variance,
+              r.statusLabel
+            ]);
+          });
+
+          sheetRows.push([]);
+          sheetRows.push(['', '', 'TOTAL', '', totalMax, totalUpdated, totalUpdated - totalMax, '']);
+
+          const worksheet = XLSX.utils.aoa_to_sheet(sheetRows);
+          worksheet['!cols'] = [
+            { wch: 6 },
+            { wch: 14 },
+            { wch: 28 },
+            { wch: 16 },
+            { wch: 16 },
+            { wch: 18 },
+            { wch: 12 },
+            { wch: 22 }
+          ];
+
+          const workbook = XLSX.utils.book_new();
+          XLSX.utils.book_append_sheet(workbook, worksheet, `Linen_${selectedDate}`);
+
+          const wbOut = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+          const blob = new Blob([wbOut], {
+            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+          });
+          triggerBlobDownload(blob, filename);
+          downloaded = true;
+        }
+      } catch (err) {
+        downloaded = false;
+      }
+
+      // Attempt 2: Zero-dependency Excel XML Spreadsheet (.xls) fallback
+      if (!downloaded) {
+        filename = `Linen_Registry_${selectedDate}.xls`;
+        const headerCells = ['No.', 'Date', 'Linen Item', 'Category', 'Max Qty (pcs)', 'Updated Qty (pcs)', 'Variance', 'Stock Indicator']
+          .map(h => `<Cell><Data ss:Type="String">${escapeXml(h)}</Data></Cell>`)
+          .join('');
+
+        const bodyRowsXml = rows
+          .map(r => {
+            const qtyCell =
+              r.updatedQtyNumeric !== ''
+                ? `<Cell><Data ss:Type="Number">${r.updatedQtyNumeric}</Data></Cell>`
+                : `<Cell><Data ss:Type="String"></Data></Cell>`;
+            const varCell =
+              r.variance !== ''
+                ? `<Cell><Data ss:Type="Number">${r.variance}</Data></Cell>`
+                : `<Cell><Data ss:Type="String"></Data></Cell>`;
+
+            return `<Row>
+              <Cell><Data ss:Type="Number">${r.no}</Data></Cell>
+              <Cell><Data ss:Type="String">${escapeXml(r.date)}</Data></Cell>
+              <Cell><Data ss:Type="String">${escapeXml(r.itemName)}</Data></Cell>
+              <Cell><Data ss:Type="String">${escapeXml(r.category)}</Data></Cell>
+              <Cell><Data ss:Type="Number">${r.maxQty}</Data></Cell>
+              ${qtyCell}
+              ${varCell}
+              <Cell><Data ss:Type="String">${escapeXml(r.statusLabel)}</Data></Cell>
+            </Row>`;
+          })
+          .join('');
+
+        const xmlContent = `<?xml version="1.0"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
+ <Worksheet ss:Name="Linen_${escapeXml(selectedDate)}">
+  <Table>
+   <Row><Cell><Data ss:Type="String">LINEN REGISTRY DAILY REPORT (${escapeXml(shortDate)})</Data></Cell></Row>
+   <Row>${headerCells}</Row>
+   ${bodyRowsXml}
+  </Table>
+ </Worksheet>
+</Workbook>`;
+
+        const xlsBlob = new Blob([xmlContent], { type: 'application/vnd.ms-excel' });
+        triggerBlobDownload(xlsBlob, filename);
+      }
+
+      // Open Google Drive Helper Modal
+      document.getElementById('generatedExcelFilename').textContent = filename;
+      const modal = document.getElementById('driveModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      showToast(`Fail Excel (${filename}) sedia untuk Google Drive!`);
+    }
+
+    /**
+     * Copies tab-separated table data to clipboard for instant pasting into Google Sheets
+     */
+    function copyRegistryTableToClipboard() {
+      const { rows } = getReportDataset();
+      const lines = [
+        ['No.', 'Date', 'Linen Item', 'Category', 'Max Qty (pcs)', 'Updated Qty (pcs)', 'Stock Indicator'].join('\t')
+      ];
+      rows.forEach(r => {
+        lines.push([
+          r.no,
+          r.date,
+          r.itemName,
+          r.category,
+          r.maxQty,
+          r.updatedQtyNumeric === '' ? 0 : r.updatedQtyNumeric,
+          r.statusLabel
+        ].join('\t'));
+      });
+
+      const textArea = document.createElement('textarea');
+      textArea.value = lines.join('\n');
+      textArea.style.position = 'fixed';
+      textArea.style.opacity = '0';
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        showToast('Data jadual disalin! Anda boleh terus Paste (Ctrl+V) ke Google Sheets.');
+      } catch (e) {
+        showToast('Sila muat naik fail Excel terus ke Google Drive.', 'warning');
+      }
+      document.body.removeChild(textArea);
+    }
+
+    /**
+     * Synchronizes date input UI and Today badge
+     */
+    function syncDateUI() {
+      const dateInput = document.getElementById('registryDateInput');
+      const formattedEl = document.getElementById('formattedDateDisplay');
+      const todayBadge = document.getElementById('todayBadge');
+
+      dateInput.value = selectedDate;
+      formattedEl.textContent = formatDisplayDate(selectedDate);
+
+      if (selectedDate === getLocalTodayISO()) {
+        todayBadge.textContent = 'Today';
+        todayBadge.className = 'text-xs font-semibold px-2.5 py-0.5 rounded-full bg-palette-sky/35 text-palette-indigo';
+      } else {
+        todayBadge.textContent = 'Selected Date';
+        todayBadge.className = 'text-xs font-semibold px-2.5 py-0.5 rounded-full bg-palette-amber/25 text-palette-indigo';
+      }
+    }
+
+    /**
+     * Initializes event listeners and default state on page load
+     */
+    function initApp() {
+      // Set default date to current local date
+      selectedDate = getLocalTodayISO();
+      syncDateUI();
+      loadDateQuantities(selectedDate);
+      renderRegistryRows();
+
+      // Restore saved custom Google Drive URL if user previously entered one
+      const savedDriveUrl = safeStorageGet(DRIVE_URL_STORAGE_KEY);
+      if (savedDriveUrl) {
+        document.getElementById('customDriveUrlInput').value = savedDriveUrl;
+        document.getElementById('openGoogleDriveLink').href = savedDriveUrl;
+      }
+
+      // Calendar Date Picker change event
+      document.getElementById('registryDateInput').addEventListener('change', (e) => {
+        if (!e.target.value) return;
+        selectedDate = e.target.value;
+        syncDateUI();
+        loadDateQuantities(selectedDate);
+        renderRegistryRows();
+        showToast(`Rekod tarikh ${formatShortDate(selectedDate)} dipaparkan.`);
+      });
+
+      // Delegated events for +/- stepper buttons & quantity inputs
+      const rowsContainer = document.getElementById('registryRowsContainer');
+      rowsContainer.addEventListener('click', (e) => {
+        const btn = e.target.closest('button[data-action]');
+        if (!btn) return;
+        const itemId = btn.getAttribute('data-id');
+        const action = btn.getAttribute('data-action');
+        if (action === 'inc') adjustItemQuantity(itemId, 1);
+        if (action === 'dec') adjustItemQuantity(itemId, -1);
+      });
+
+      rowsContainer.addEventListener('input', (e) => {
+        if (!e.target.classList.contains('qty-input')) return;
+        const itemId = e.target.getAttribute('data-id');
+        setItemQuantity(itemId, e.target.value);
+      });
+
+      // Status Filter Pills
+      document.getElementById('filterPillsContainer').addEventListener('click', (e) => {
+        const pill = e.target.closest('.filter-pill');
+        if (!pill) return;
+
+        activeFilter = pill.getAttribute('data-filter');
+
+        document.querySelectorAll('.filter-pill').forEach(btn => {
+          btn.classList.remove('active', 'bg-palette-indigo', 'text-white');
+          btn.classList.add('bg-[#F4F8FC]', 'text-palette-indigo');
+        });
+        pill.classList.add('active', 'bg-palette-indigo', 'text-white');
+        pill.classList.remove('bg-[#F4F8FC]', 'text-palette-indigo');
+
+        renderRegistryRows();
+      });
+
+      // Search Input
+      document.getElementById('searchInput').addEventListener('input', (e) => {
+        searchQuery = e.target.value.trim();
+        renderRegistryRows();
+      });
+
+      // Quick Action: Fill All Max
+      document.getElementById('btnFillMax').addEventListener('click', () => {
+        LINEN_ITEMS.forEach(item => {
+          quantitiesById[item.id] = item.max;
+        });
+        saveDateQuantities();
+        renderRegistryRows();
+        showToast('Semua 19 item telah diisi mengikut kuantiti maksimum.');
+      });
+
+      // Quick Action: Reset All for selected date
+      document.getElementById('btnResetAll').addEventListener('click', () => {
+        LINEN_ITEMS.forEach(item => {
+          quantitiesById[item.id] = null;
+        });
+        saveDateQuantities();
+        renderRegistryRows();
+        showToast('Semua input kuantiti untuk tarikh ini telah dikosongkan.', 'warning');
+      });
+
+      // Primary Export Buttons
+      document.getElementById('btnGeneratePdf').addEventListener('click', generatePdfReport);
+      document.getElementById('btnExportDriveExcel').addEventListener('click', exportExcelForDrive);
+
+      // Google Drive Modal Controls
+      const driveModal = document.getElementById('driveModal');
+      const closeModal = () => {
+        driveModal.classList.add('hidden');
+        driveModal.classList.remove('flex');
+      };
+
+      document.getElementById('closeDriveModal').addEventListener('click', closeModal);
+      document.getElementById('doneDriveModal').addEventListener('click', closeModal);
+      document.getElementById('btnCopySheetData').addEventListener('click', copyRegistryTableToClipboard);
+      driveModal.addEventListener('click', (e) => {
+        if (e.target === driveModal) closeModal();
+      });
+
+      document.getElementById('customDriveUrlInput').addEventListener('input', (e) => {
+        const val = e.target.value.trim() || 'https://drive.google.com/drive/my-drive';
+        document.getElementById('openGoogleDriveLink').href = val;
+        safeStorageSet(DRIVE_URL_STORAGE_KEY, val);
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initApp);
+    } else {
+      initApp();
+    }
+  </script>
+</body>
+</html>
