@@ -212,10 +212,10 @@
         </div>
         <div class="my-1">
           <span id="kpiTotalQty" class="text-3xl font-bold text-palette-indigo">0</span>
-          <span id="kpiMaxQtyDisplay" class="text-sm font-medium text-palette-indigo/60">/ 428 pcs max</span>
+          <span id="kpiMaxQtyDisplay" class="text-sm font-medium text-palette-indigo/60">/ 460 pcs max</span>
         </div>
         <p id="kpiItemsUpdated" class="text-xs font-medium text-palette-plum">
-          0 daripada 29 item telah dikemaskini
+          0 daripada 31 item telah dikemaskini
         </p>
       </div>
 
@@ -265,7 +265,7 @@
       <!-- Status Filter Pills -->
       <div class="flex flex-wrap items-center gap-2" id="filterPillsContainer">
         <button data-filter="all" type="button" class="filter-pill active px-3.5 py-2 rounded-2xl text-xs sm:text-sm font-semibold bg-palette-indigo text-white transition-all cursor-pointer">
-          All Items (29)
+          All Items (31)
         </button>
         <button data-filter="low" type="button" class="filter-pill px-3.5 py-2 rounded-2xl text-xs sm:text-sm font-semibold bg-[#F4F8FC] text-palette-indigo hover:bg-palette-amber/20 transition-all cursor-pointer">
           Low Stock
@@ -453,7 +453,7 @@
   <!-- Complete Application Logic -->
   <script>
     /**
-     * Master list of all 29 Linen Items and their exact Maximum Quantities
+     * Master list of all 31 Linen Items and their exact Maximum Quantities
      */
     const LINEN_ITEMS = [
       { id: 'towel_bath', name: 'Towel Bath', max: 40, category: 'Bath' },
@@ -471,9 +471,11 @@
       { id: 'baju_male_m', name: 'Baju Adult Male (M)', max: 16, category: 'Adult Male' },
       { id: 'baju_male_l', name: 'Baju Adult Male (L)', max: 16, category: 'Adult Male' },
       { id: 'baju_male_xl', name: 'Baju Adult Male (XL)', max: 16, category: 'Adult Male' },
+      { id: 'seluar_female_s', name: 'Seluar Adult Female (S)', max: 16, category: 'Adult Female' },
       { id: 'seluar_female_m', name: 'Seluar Adult Female (M)', max: 16, category: 'Adult Female' },
       { id: 'seluar_female_l', name: 'Seluar Adult Female (L)', max: 16, category: 'Adult Female' },
       { id: 'seluar_female_xl', name: 'Seluar Adult Female (XL)', max: 16, category: 'Adult Female' },
+      { id: 'seluar_male_s', name: 'Seluar Adult Male (S)', max: 16, category: 'Adult Male' },
       { id: 'seluar_male_m', name: 'Seluar Adult Male (M)', max: 16, category: 'Adult Male' },
       { id: 'seluar_male_l', name: 'Seluar Adult Male (L)', max: 16, category: 'Adult Male' },
       { id: 'seluar_male_xl', name: 'Seluar Adult Male (XL)', max: 16, category: 'Adult Male' },
