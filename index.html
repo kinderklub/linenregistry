@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ms">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -196,7 +196,7 @@
           />
         </div>
         <p id="formattedDateDisplay" class="text-xs text-palette-indigo/70 mt-2 font-medium">
-          Loading date...
+          Tarikh hari ini
         </p>
       </div>
 
@@ -212,10 +212,10 @@
         </div>
         <div class="my-1">
           <span id="kpiTotalQty" class="text-3xl font-bold text-palette-indigo">0</span>
-          <span id="kpiMaxQtyDisplay" class="text-sm font-medium text-palette-indigo/60">/ 300 pcs max</span>
+          <span id="kpiMaxQtyDisplay" class="text-sm font-medium text-palette-indigo/60">/ 428 pcs max</span>
         </div>
         <p id="kpiItemsUpdated" class="text-xs font-medium text-palette-plum">
-          0 daripada 19 item telah dikemaskini
+          0 daripada 29 item telah dikemaskini
         </p>
       </div>
 
@@ -265,7 +265,7 @@
       <!-- Status Filter Pills -->
       <div class="flex flex-wrap items-center gap-2" id="filterPillsContainer">
         <button data-filter="all" type="button" class="filter-pill active px-3.5 py-2 rounded-2xl text-xs sm:text-sm font-semibold bg-palette-indigo text-white transition-all cursor-pointer">
-          All Items (19)
+          All Items (29)
         </button>
         <button data-filter="low" type="button" class="filter-pill px-3.5 py-2 rounded-2xl text-xs sm:text-sm font-semibold bg-[#F4F8FC] text-palette-indigo hover:bg-palette-amber/20 transition-all cursor-pointer">
           Low Stock
@@ -440,7 +440,7 @@
     </div>
   </div>
 
-  <!-- Toast Notification Banner (Replaces browser alert) -->
+  <!-- Toast Notification Banner -->
   <div id="toastNotification" class="no-print fixed bottom-5 right-5 z-50 hidden transform transition-all duration-300">
     <div class="flex items-center gap-3 px-4 py-3 rounded-2xl bg-palette-indigo text-white shadow-xl border border-palette-sky/40 max-w-sm">
       <span id="toastIcon" class="w-7 h-7 rounded-xl bg-palette-amber text-palette-indigo flex items-center justify-center font-bold shrink-0">
@@ -450,10 +450,10 @@
     </div>
   </div>
 
-  <!-- Application Logic -->
+  <!-- Complete Application Logic -->
   <script>
     /**
-     * Master list of all 19 Linen Items and their exact Maximum Quantities
+     * Master list of all 29 Linen Items and their exact Maximum Quantities
      */
     const LINEN_ITEMS = [
       { id: 'towel_bath', name: 'Towel Bath', max: 40, category: 'Bath' },
@@ -461,57 +461,45 @@
       { id: 'linen_protector', name: 'Linen Protector', max: 4, category: 'Bedding' },
       { id: 'sheet_bed', name: 'Sheet Bed', max: 16, category: 'Bedding' },
       { id: 'pillowcase_adult', name: 'Pillowcase Adult', max: 16, category: 'Bedding' },
-      { id: 'sarong_female_m', name: 'Sarong Adult Female (M)', max: 16, category: 'Adult Female' },
-      { id: 'sarong_female_l', name: 'Sarong Adult Female (L)', max: 16, category: 'Adult Female' },
-      { id: 'sarong_male_m', name: 'Sarong Adult Male (M)', max: 16, category: 'Adult Male' },
-      { id: 'sarong_male_l', name: 'Sarong Adult Male (L)', max: 16, category: 'Adult Male' },
+      { id: 'sarong_adult_female', name: 'Sarong Adult Female (Freesize)', max: 16, category: 'Adult Female' },
+      { id: 'sarong_adult_male', name: 'Sarong Adult Male (Freesize)', max: 16, category: 'Adult Male' },
+      { id: 'baju_female_s', name: 'Baju Adult Female (S)', max: 16, category: 'Adult Female' },
       { id: 'baju_female_m', name: 'Baju Adult Female (M)', max: 16, category: 'Adult Female' },
       { id: 'baju_female_l', name: 'Baju Adult Female (L)', max: 16, category: 'Adult Female' },
+      { id: 'baju_female_xl', name: 'Baju Adult Female (XL)', max: 16, category: 'Adult Female' },
+      { id: 'baju_male_s', name: 'Baju Adult Male (S)', max: 16, category: 'Adult Male' },
       { id: 'baju_male_m', name: 'Baju Adult Male (M)', max: 16, category: 'Adult Male' },
       { id: 'baju_male_l', name: 'Baju Adult Male (L)', max: 16, category: 'Adult Male' },
+      { id: 'baju_male_xl', name: 'Baju Adult Male (XL)', max: 16, category: 'Adult Male' },
       { id: 'seluar_female_m', name: 'Seluar Adult Female (M)', max: 16, category: 'Adult Female' },
       { id: 'seluar_female_l', name: 'Seluar Adult Female (L)', max: 16, category: 'Adult Female' },
+      { id: 'seluar_female_xl', name: 'Seluar Adult Female (XL)', max: 16, category: 'Adult Female' },
       { id: 'seluar_male_m', name: 'Seluar Adult Male (M)', max: 16, category: 'Adult Male' },
       { id: 'seluar_male_l', name: 'Seluar Adult Male (L)', max: 16, category: 'Adult Male' },
-      { id: 'baju_child', name: 'Baju Child', max: 8, category: 'Child' },
-      { id: 'seluar_child', name: 'Seluar Child', max: 8, category: 'Child' }
+      { id: 'seluar_male_xl', name: 'Seluar Adult Male (XL)', max: 16, category: 'Adult Male' },
+      { id: 'baju_child_s', name: 'Baju Child (S)', max: 8, category: 'Child' },
+      { id: 'baju_child_m', name: 'Baju Child (M)', max: 8, category: 'Child' },
+      { id: 'baju_child_l', name: 'Baju Child (L)', max: 8, category: 'Child' },
+      { id: 'baju_child_xl', name: 'Baju Child (XL)', max: 8, category: 'Child' },
+      { id: 'seluar_child_s', name: 'Seluar Child (S)', max: 8, category: 'Child' },
+      { id: 'seluar_child_m', name: 'Seluar Child (M)', max: 8, category: 'Child' },
+      { id: 'seluar_child_l', name: 'Seluar Child (L)', max: 8, category: 'Child' },
+      { id: 'seluar_child_xl', name: 'Seluar Child (XL)', max: 8, category: 'Child' }
     ];
 
-    const STORAGE_KEY_PREFIX = 'linen_registry_records_v2_';
-    const DRIVE_URL_STORAGE_KEY = 'linen_registry_drive_url';
+    const STORAGE_PREFIX = 'linen_registry_ezlyana_v2_';
+    const DRIVE_URL_KEY = 'linen_registry_drive_url_v1';
 
-    // Application State
-    let selectedDate = getLocalTodayISO();
-    let quantitiesById = {}; // { [itemId]: number | null }
+    let currentDateStr = '';
+    let quantities = {};
     let activeFilter = 'all';
     let searchQuery = '';
     let toastTimer = null;
 
     /**
-     * Safe storage helpers (prevents SecurityError in restricted iframes)
+     * Get local current date formatted as YYYY-MM-DD
      */
-    function safeStorageGet(key) {
-      try {
-        return window.localStorage ? window.localStorage.getItem(key) : null;
-      } catch (e) {
-        return null;
-      }
-    }
-
-    function safeStorageSet(key, value) {
-      try {
-        if (window.localStorage) {
-          window.localStorage.setItem(key, value);
-        }
-      } catch (e) {
-        // Ignore storage restriction in private/sandbox mode
-      }
-    }
-
-    /**
-     * Returns today's local date in YYYY-MM-DD format
-     */
-    function getLocalTodayISO() {
+    function getTodayLocalDateStr() {
       const now = new Date();
       const year = now.getFullYear();
       const month = String(now.getMonth() + 1).padStart(2, '0');
@@ -520,505 +508,430 @@
     }
 
     /**
-     * Formats YYYY-MM-DD into a human-readable date string
+     * Format YYYY-MM-DD to readable Malaysian/English date display
      */
-    function formatDisplayDate(isoDate) {
-      if (!isoDate) return '-';
-      const parts = isoDate.split('-');
-      if (parts.length !== 3) return isoDate;
+    function formatReadableDate(dateStr) {
+      if (!dateStr) return '-';
+      const parts = dateStr.split('-');
+      if (parts.length !== 3) return dateStr;
       const dateObj = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
-      return dateObj.toLocaleDateString('en-MY', {
-        weekday: 'long',
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric'
-      });
+      const days = ['Ahad', 'Isnin', 'Selasa', 'Rabu', 'Khamis', 'Jumaat', 'Sabtu'];
+      const months = ['Jan', 'Feb', 'Mac', 'Apr', 'Mei', 'Jun', 'Jul', 'Ogos', 'Sep', 'Okt', 'Nov', 'Dis'];
+      return `${days[dateObj.getDay()]}, ${dateObj.getDate()} ${months[dateObj.getMonth()]} ${dateObj.getFullYear()}`;
     }
 
     /**
-     * Formats YYYY-MM-DD into DD/MM/YYYY for compact table display
+     * Determine Stock Status Indicator based on updated quantity vs max quantity
      */
-    function formatShortDate(isoDate) {
-      if (!isoDate) return '-';
-      const parts = isoDate.split('-');
-      if (parts.length !== 3) return isoDate;
-      return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    function getStockStatus(qty, max) {
+      if (qty === null || qty === undefined || qty === '' || Number.isNaN(Number(qty))) {
+        return {
+          code: 'pending',
+          label: 'Pending',
+          detail: 'Belum dikemaskini',
+          badgeHtml: `
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-500 border border-slate-200">
+              <span class="w-2 h-2 rounded-full bg-slate-400"></span>
+              Pending
+            </span>
+          `,
+          rowBg: 'bg-white hover:bg-[#F8FBFF]'
+        };
+      }
+
+      const numQty = Number(qty);
+      if (numQty < max) {
+        const diff = max - numQty;
+        return {
+          code: 'low',
+          label: 'Low Stock',
+          detail: `Kurang ${diff} pcs`,
+          badgeHtml: `
+            <div class="inline-flex flex-col items-end badge-animate">
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-palette-amber/20 text-[#B36E00] border border-palette-amber">
+                <span class="w-2 h-2 rounded-full bg-palette-amber"></span>
+                Low Stock
+              </span>
+              <span class="text-[11px] font-semibold text-[#B36E00] mt-0.5">-${diff} pcs dari max</span>
+            </div>
+          `,
+          rowBg: 'bg-palette-amber/[0.04] hover:bg-palette-amber/[0.08]'
+        };
+      }
+
+      if (numQty > max) {
+        const diff = numQty - max;
+        return {
+          code: 'exceed',
+          label: 'Exceed Stock',
+          detail: `Lebih ${diff} pcs`,
+          badgeHtml: `
+            <div class="inline-flex flex-col items-end badge-animate">
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-palette-magenta/15 text-palette-magenta border border-palette-magenta/50">
+                <span class="w-2 h-2 rounded-full bg-palette-magenta"></span>
+                Exceed Stock
+              </span>
+              <span class="text-[11px] font-semibold text-palette-magenta mt-0.5">+${diff} pcs melebihi max</span>
+            </div>
+          `,
+          rowBg: 'bg-palette-magenta/[0.04] hover:bg-palette-magenta/[0.08]'
+        };
+      }
+
+      return {
+        code: 'optimal',
+        label: 'Optimal (Max)',
+        detail: 'Tepat had maksimum',
+        badgeHtml: `
+          <div class="inline-flex flex-col items-end badge-animate">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-palette-sky/30 text-palette-indigo border border-palette-sky">
+              <span class="w-2 h-2 rounded-full bg-palette-indigo"></span>
+              Optimal (Max)
+            </span>
+            <span class="text-[11px] font-medium text-palette-indigo/70 mt-0.5">Tepat ${max} pcs</span>
+          </div>
+        `,
+        rowBg: 'bg-palette-sky/[0.08] hover:bg-palette-sky/[0.14]'
+      };
     }
 
     /**
-     * Loads saved quantities for a specific date from localStorage
+     * Load quantities for a given date from localStorage
      */
     function loadDateQuantities(dateStr) {
       const fresh = {};
       LINEN_ITEMS.forEach(item => {
         fresh[item.id] = null;
       });
-
-      const raw = safeStorageGet(STORAGE_KEY_PREFIX + dateStr);
-      if (raw) {
-        try {
+      try {
+        const raw = localStorage.getItem(STORAGE_PREFIX + dateStr);
+        if (raw) {
           const parsed = JSON.parse(raw);
-          if (parsed && typeof parsed === 'object') {
-            LINEN_ITEMS.forEach(item => {
-              if (parsed[item.id] !== undefined && parsed[item.id] !== null && parsed[item.id] !== '') {
-                const num = Number(parsed[item.id]);
-                fresh[item.id] = Number.isNaN(num) ? null : Math.max(0, Math.floor(num));
-              }
-            });
-          }
-        } catch (e) {
-          // Ignore malformed JSON
+          LINEN_ITEMS.forEach(item => {
+            if (parsed[item.id] !== undefined && parsed[item.id] !== null && parsed[item.id] !== '') {
+              fresh[item.id] = Number(parsed[item.id]);
+            }
+          });
         }
+      } catch (e) {
+        // Fallback silently if storage is restricted
       }
-      quantitiesById = fresh;
+      quantities = fresh;
     }
 
     /**
-     * Saves current date quantities to localStorage
+     * Save current date's quantities to localStorage
      */
     function saveDateQuantities() {
-      safeStorageSet(STORAGE_KEY_PREFIX + selectedDate, JSON.stringify(quantitiesById));
+      try {
+        localStorage.setItem(STORAGE_PREFIX + currentDateStr, JSON.stringify(quantities));
+      } catch (e) {
+        // Ignore storage quota/sandbox issues
+      }
     }
 
     /**
-     * Determines stock status for an item based on updated quantity vs max
+     * Show non-blocking Toast notification
      */
-    function getStockStatus(qty, max) {
-      if (qty === null || qty === undefined || qty === '') {
-        return {
-          key: 'pending',
-          label: 'Pending',
-          shortLabel: 'Pending',
-          diff: 0
-        };
-      }
-      const numericQty = Number(qty);
-      const diff = numericQty - max;
-
-      if (numericQty < max) {
-        return {
-          key: 'low',
-          label: `Low Stock (${diff})`,
-          shortLabel: 'Low Stock',
-          diff
-        };
-      }
-      if (numericQty > max) {
-        return {
-          key: 'exceed',
-          label: `Exceed Stock (+${diff})`,
-          shortLabel: 'Exceed Stock',
-          diff
-        };
-      }
-      return {
-        key: 'optimal',
-        label: 'Optimal (Max)',
-        shortLabel: 'Optimal',
-        diff: 0
-      };
-    }
-
-    /**
-     * Renders the stock indicator badge HTML using the custom color palette
-     */
-    function renderStatusBadgeHTML(status) {
-      if (status.key === 'low') {
-        return `
-          <span class="badge-animate inline-flex items-center gap-1.5 px-3 py-1.5 rounded-2xl text-xs font-bold bg-palette-amber/20 text-[#B86E00] border border-palette-amber/50">
-            <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6">
-              <path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-            </svg>
-            <span>${status.label}</span>
-          </span>
-        `;
-      }
-      if (status.key === 'exceed') {
-        return `
-          <span class="badge-animate inline-flex items-center gap-1.5 px-3 py-1.5 rounded-2xl text-xs font-bold bg-palette-magenta/15 text-palette-magenta border border-palette-magenta/40">
-            <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6">
-              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-            </svg>
-            <span>${status.label}</span>
-          </span>
-        `;
-      }
-      if (status.key === 'optimal') {
-        return `
-          <span class="badge-animate inline-flex items-center gap-1.5 px-3 py-1.5 rounded-2xl text-xs font-bold bg-palette-sky/35 text-palette-indigo border border-palette-sky">
-            <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6">
-              <polyline points="20 6 9 17 4 12"/>
-            </svg>
-            <span>${status.label}</span>
-          </span>
-        `;
-      }
-      return `
-        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-2xl text-xs font-semibold bg-[#F4F8FC] text-palette-indigo/50 border border-palette-indigo/10">
-          <span>Belum Diisi</span>
-        </span>
-      `;
-    }
-
-    /**
-     * Updates top KPI summary cards and filter pill counts
-     */
-    function updateSummaryKPIs() {
-      let totalPieces = 0;
-      let updatedCount = 0;
-      let lowCount = 0;
-      let exceedCount = 0;
-      let optimalCount = 0;
-      let pendingCount = 0;
-
-      LINEN_ITEMS.forEach(item => {
-        const qty = quantitiesById[item.id];
-        const status = getStockStatus(qty, item.max);
-
-        if (qty !== null && qty !== undefined && qty !== '') {
-          totalPieces += Number(qty);
-          updatedCount++;
-        }
-
-        if (status.key === 'low') lowCount++;
-        else if (status.key === 'exceed') exceedCount++;
-        else if (status.key === 'optimal') optimalCount++;
-        else pendingCount++;
-      });
-
-      const totalMaxCapacity = LINEN_ITEMS.reduce((sum, item) => sum + item.max, 0);
-
-      document.getElementById('kpiTotalQty').textContent = totalPieces;
-      document.getElementById('kpiMaxQtyDisplay').textContent = `/ ${totalMaxCapacity} pcs max`;
-      document.getElementById('kpiItemsUpdated').textContent = `${updatedCount} daripada ${LINEN_ITEMS.length} item telah dikemaskini`;
-      document.getElementById('kpiLowStock').textContent = lowCount;
-      document.getElementById('kpiExceedStock').textContent = exceedCount;
-
-      // Update filter pills labels with live counts
-      const pills = document.querySelectorAll('.filter-pill');
-      pills.forEach(pill => {
-        const filter = pill.getAttribute('data-filter');
-        if (filter === 'all') pill.textContent = `All Items (${LINEN_ITEMS.length})`;
-        if (filter === 'low') pill.textContent = `Low Stock (${lowCount})`;
-        if (filter === 'exceed') pill.textContent = `Exceed Stock (${exceedCount})`;
-        if (filter === 'optimal') pill.textContent = `Optimal (${optimalCount})`;
-        if (filter === 'pending') pill.textContent = `Pending (${pendingCount})`;
-      });
-    }
-
-    /**
-     * Updates a single row's indicator badge & input border without re-rendering the entire list
-     */
-    function updateSingleRowUI(itemId) {
-      const item = LINEN_ITEMS.find(i => i.id === itemId);
-      if (!item) return;
-
-      const qty = quantitiesById[itemId];
-      const status = getStockStatus(qty, item.max);
-
-      const badgeSlot = document.getElementById(`badge_${itemId}`);
-      if (badgeSlot) {
-        badgeSlot.innerHTML = renderStatusBadgeHTML(status);
-      }
-
-      const inputEl = document.getElementById(`input_${itemId}`);
-      if (inputEl) {
-        inputEl.classList.remove(
-          'border-palette-amber',
-          'bg-palette-amber/10',
-          'border-palette-magenta',
-          'bg-palette-magenta/10',
-          'border-palette-sky',
-          'bg-palette-sky/15',
-          'border-palette-indigo/20',
-          'bg-[#F4F8FC]'
-        );
-
-        if (status.key === 'low') {
-          inputEl.classList.add('border-palette-amber', 'bg-palette-amber/10');
-        } else if (status.key === 'exceed') {
-          inputEl.classList.add('border-palette-magenta', 'bg-palette-magenta/10');
-        } else if (status.key === 'optimal') {
-          inputEl.classList.add('border-palette-sky', 'bg-palette-sky/15');
-        } else {
-          inputEl.classList.add('border-palette-indigo/20', 'bg-[#F4F8FC]');
-        }
-      }
-
-      updateSummaryKPIs();
-    }
-
-    /**
-     * Handles quantity change for an item
-     */
-    function setItemQuantity(itemId, rawValue) {
-      if (rawValue === '' || rawValue === null || rawValue === undefined) {
-        quantitiesById[itemId] = null;
-      } else {
-        const parsed = parseInt(rawValue, 10);
-        quantitiesById[itemId] = Number.isNaN(parsed) ? null : Math.max(0, parsed);
-      }
-      saveDateQuantities();
-      updateSingleRowUI(itemId);
-    }
-
-    /**
-     * Increments or decrements an item's quantity by delta (+1 / -1)
-     */
-    function adjustItemQuantity(itemId, delta) {
-      const current = quantitiesById[itemId];
-      const baseValue = (current === null || current === undefined) ? 0 : Number(current);
-      const nextValue = Math.max(0, baseValue + delta);
-      quantitiesById[itemId] = nextValue;
-
-      const inputEl = document.getElementById(`input_${itemId}`);
-      if (inputEl) {
-        inputEl.value = nextValue;
-      }
-
-      saveDateQuantities();
-      updateSingleRowUI(itemId);
-    }
-
-    /**
-     * Renders the full list of Linen Items based on active filters & search query
-     */
-    function renderRegistryRows() {
-      const container = document.getElementById('registryRowsContainer');
-      const emptyState = document.getElementById('emptyFilterState');
-      const shortDate = formatShortDate(selectedDate);
-
-      const filteredItems = LINEN_ITEMS.map((item, idx) => ({ ...item, index: idx + 1 })).filter(item => {
-        const qty = quantitiesById[item.id];
-        const status = getStockStatus(qty, item.max);
-
-        const matchesFilter = activeFilter === 'all' || status.key === activeFilter;
-        const matchesSearch =
-          !searchQuery ||
-          item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          item.category.toLowerCase().includes(searchQuery.toLowerCase());
-
-        return matchesFilter && matchesSearch;
-      });
-
-      if (filteredItems.length === 0) {
-        container.innerHTML = '';
-        emptyState.classList.remove('hidden');
-        updateSummaryKPIs();
-        return;
-      }
-
-      emptyState.classList.add('hidden');
-
-      container.innerHTML = filteredItems
-        .map(item => {
-          const qty = quantitiesById[item.id];
-          const displayVal = qty === null || qty === undefined ? '' : qty;
-          const status = getStockStatus(qty, item.max);
-
-          let inputStyle = 'border-palette-indigo/20 bg-[#F4F8FC]';
-          if (status.key === 'low') inputStyle = 'border-palette-amber bg-palette-amber/10';
-          else if (status.key === 'exceed') inputStyle = 'border-palette-magenta bg-palette-magenta/10';
-          else if (status.key === 'optimal') inputStyle = 'border-palette-sky bg-palette-sky/15';
-
-          return `
-            <div class="p-4 md:px-6 md:py-3.5 hover:bg-[#F8FBFF] transition-colors">
-              <div class="grid grid-cols-1 md:grid-cols-12 gap-3 md:gap-4 items-center">
-                
-                <!-- Index Number (Desktop) -->
-                <div class="hidden md:block md:col-span-1 text-sm font-bold text-palette-indigo/50">
-                  ${String(item.index).padStart(2, '0')}
-                </div>
-
-                <!-- Date Column -->
-                <div class="hidden md:flex md:col-span-2 items-center gap-1.5 text-xs font-semibold text-palette-plum">
-                  <span class="px-2.5 py-1 rounded-xl bg-palette-sky/20 text-palette-indigo">
-                    ${shortDate}
-                  </span>
-                </div>
-
-                <!-- Item Name & Category -->
-                <div class="md:col-span-3 flex items-center justify-between md:justify-start gap-2">
-                  <div>
-                    <div class="flex items-center gap-2">
-                      <span class="md:hidden text-xs font-bold px-2 py-0.5 rounded-lg bg-palette-indigo/10 text-palette-indigo">
-                        #${String(item.index).padStart(2, '0')}
-                      </span>
-                      <h3 class="text-base font-bold text-palette-indigo leading-tight">${item.name}</h3>
-                    </div>
-                    <div class="flex items-center gap-2 mt-1">
-                      <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-palette-plum/10 text-palette-plum">
-                        ${item.category}
-                      </span>
-                      <span class="md:hidden text-[11px] font-semibold text-palette-indigo/60">
-                        • ${shortDate}
-                      </span>
-                    </div>
-                  </div>
-
-                  <!-- Mobile Max Badge -->
-                  <div class="md:hidden text-right">
-                    <span class="text-[11px] uppercase tracking-wider text-palette-indigo/50 block">Max</span>
-                    <span class="text-sm font-bold px-2.5 py-1 rounded-xl bg-palette-indigo text-white inline-block">
-                      ${item.max} pcs
-                    </span>
-                  </div>
-                </div>
-
-                <!-- Max Qty Column (Desktop) -->
-                <div class="hidden md:flex md:col-span-1 justify-center">
-                  <span class="px-3 py-1 rounded-xl bg-palette-indigo/10 text-palette-indigo font-bold text-sm">
-                    ${item.max}
-                  </span>
-                </div>
-
-                <!-- Quantity Input Stepper Controls -->
-                <div class="md:col-span-3 flex items-center justify-between md:justify-center gap-2">
-                  <span class="md:hidden text-xs font-semibold text-palette-indigo/70">Kuantiti:</span>
-                  <div class="flex items-center gap-1.5">
-                    <button
-                      type="button"
-                      data-action="dec"
-                      data-id="${item.id}"
-                      aria-label="Decrease ${item.name}"
-                      class="w-10 h-10 rounded-2xl bg-palette-plum/10 hover:bg-palette-plum hover:text-white text-palette-plum font-bold text-lg flex items-center justify-center transition-all active:scale-90 cursor-pointer select-none"
-                    >
-                      −
-                    </button>
-                    <input
-                      type="number"
-                      min="0"
-                      step="1"
-                      inputmode="numeric"
-                      id="input_${item.id}"
-                      data-id="${item.id}"
-                      value="${displayVal}"
-                      placeholder="0"
-                      aria-label="Quantity for ${item.name}"
-                      class="qty-input w-20 h-10 text-center rounded-2xl border-2 ${inputStyle} focus:border-palette-indigo focus:outline-none text-base font-bold text-palette-indigo transition-colors"
-                    />
-                    <button
-                      type="button"
-                      data-action="inc"
-                      data-id="${item.id}"
-                      aria-label="Increase ${item.name}"
-                      class="w-10 h-10 rounded-2xl bg-palette-sky/35 hover:bg-palette-indigo hover:text-white text-palette-indigo font-bold text-lg flex items-center justify-center transition-all active:scale-90 cursor-pointer select-none"
-                    >
-                      +
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Stock Indicator Badge -->
-                <div id="badge_${item.id}" class="md:col-span-2 flex items-center justify-between md:justify-end pt-2 md:pt-0 border-t md:border-t-0 border-palette-indigo/5">
-                  <span class="md:hidden text-xs font-semibold text-palette-indigo/60">Status Stok:</span>
-                  ${renderStatusBadgeHTML(status)}
-                </div>
-
-              </div>
-            </div>
-          `;
-        })
-        .join('');
-
-      updateSummaryKPIs();
-    }
-
-    /**
-     * Shows a sleek non-blocking toast message
-     */
-    function showToast(message, type = 'success') {
+    function showToast(message, isWarning = false) {
       const toast = document.getElementById('toastNotification');
-      const toastMsg = document.getElementById('toastMessage');
-      const toastIcon = document.getElementById('toastIcon');
+      const msgEl = document.getElementById('toastMessage');
+      const iconEl = document.getElementById('toastIcon');
+      if (!toast || !msgEl || !iconEl) return;
 
-      toastMsg.textContent = message;
-      if (type === 'warning') {
-        toastIcon.textContent = '!';
-        toastIcon.className = 'w-7 h-7 rounded-xl bg-palette-magenta text-white flex items-center justify-center font-bold shrink-0';
+      msgEl.textContent = message;
+      if (isWarning) {
+        iconEl.textContent = '!';
+        iconEl.className = 'w-7 h-7 rounded-xl bg-palette-magenta text-white flex items-center justify-center font-bold shrink-0';
       } else {
-        toastIcon.textContent = '✓';
-        toastIcon.className = 'w-7 h-7 rounded-xl bg-palette-amber text-palette-indigo flex items-center justify-center font-bold shrink-0';
+        iconEl.textContent = '✓';
+        iconEl.className = 'w-7 h-7 rounded-xl bg-palette-amber text-palette-indigo flex items-center justify-center font-bold shrink-0';
       }
 
       toast.classList.remove('hidden');
       if (toastTimer) clearTimeout(toastTimer);
       toastTimer = setTimeout(() => {
         toast.classList.add('hidden');
-      }, 4000);
+      }, 3500);
     }
 
     /**
-     * Helper to trigger safe file download via Blob + temporary anchor element
+     * Update top summary KPI cards and filter button counters
      */
-    function triggerBlobDownload(blob, filename) {
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      a.style.display = 'none';
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(() => {
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      }, 250);
-    }
-
-    /**
-     * Collects structured report rows for PDF, Excel & Clipboard
-     */
-    function getReportDataset() {
-      const shortDate = formatShortDate(selectedDate);
+    function updateSummaryKPIs() {
+      let totalEntered = 0;
       let totalMax = 0;
-      let totalUpdated = 0;
+      let updatedItemsCount = 0;
       let lowCount = 0;
       let exceedCount = 0;
+      let optimalCount = 0;
+      let pendingCount = 0;
 
-      const rows = LINEN_ITEMS.map((item, idx) => {
-        const qty = quantitiesById[item.id];
-        const hasValue = qty !== null && qty !== undefined && qty !== '';
-        const numQty = hasValue ? Number(qty) : 0;
-        const status = getStockStatus(qty, item.max);
-
+      LINEN_ITEMS.forEach(item => {
         totalMax += item.max;
-        if (hasValue) totalUpdated += numQty;
-        if (status.key === 'low') lowCount++;
-        if (status.key === 'exceed') exceedCount++;
+        const val = quantities[item.id];
+        const status = getStockStatus(val, item.max);
 
-        return {
-          no: idx + 1,
-          date: shortDate,
-          itemName: item.name,
-          category: item.category,
-          maxQty: item.max,
-          updatedQtyDisplay: hasValue ? `${numQty} pcs` : 'Pending',
-          updatedQtyNumeric: hasValue ? numQty : '',
-          variance: hasValue ? numQty - item.max : '',
-          statusLabel: hasValue ? status.label : 'Pending'
-        };
+        if (status.code !== 'pending') {
+          totalEntered += Number(val);
+          updatedItemsCount++;
+        }
+
+        if (status.code === 'low') lowCount++;
+        else if (status.code === 'exceed') exceedCount++;
+        else if (status.code === 'optimal') optimalCount++;
+        else pendingCount++;
       });
 
-      return { rows, totalMax, totalUpdated, lowCount, exceedCount, shortDate };
+      const kpiTotalQty = document.getElementById('kpiTotalQty');
+      const kpiMaxQtyDisplay = document.getElementById('kpiMaxQtyDisplay');
+      const kpiItemsUpdated = document.getElementById('kpiItemsUpdated');
+      const kpiLowStock = document.getElementById('kpiLowStock');
+      const kpiExceedStock = document.getElementById('kpiExceedStock');
+
+      if (kpiTotalQty) kpiTotalQty.textContent = totalEntered;
+      if (kpiMaxQtyDisplay) kpiMaxQtyDisplay.textContent = `/ ${totalMax} pcs max`;
+      if (kpiItemsUpdated) kpiItemsUpdated.textContent = `${updatedItemsCount} daripada ${LINEN_ITEMS.length} item telah dikemaskini`;
+      if (kpiLowStock) kpiLowStock.textContent = lowCount;
+      if (kpiExceedStock) kpiExceedStock.textContent = exceedCount;
+
+      // Update Filter Pills text with live counts
+      const pills = document.querySelectorAll('.filter-pill');
+      pills.forEach(pill => {
+        const f = pill.getAttribute('data-filter');
+        if (f === 'all') pill.textContent = `All Items (${LINEN_ITEMS.length})`;
+        else if (f === 'low') pill.textContent = lowCount > 0 ? `Low Stock (${lowCount})` : 'Low Stock';
+        else if (f === 'exceed') pill.textContent = exceedCount > 0 ? `Exceed Stock (${exceedCount})` : 'Exceed Stock';
+        else if (f === 'optimal') pill.textContent = optimalCount > 0 ? `Optimal (${optimalCount})` : 'Optimal (Max)';
+        else if (f === 'pending') pill.textContent = pendingCount > 0 ? `Pending (${pendingCount})` : 'Pending';
+      });
     }
 
     /**
-     * Generates and downloads a formatted PDF report (with automatic native print fallback)
+     * Update a single row's indicator badge and styling without losing input focus
      */
-    function generatePdfReport() {
-      const { rows, totalMax, totalUpdated, lowCount, exceedCount, shortDate } = getReportDataset();
-      const filename = `Linen_Registry_${selectedDate}.pdf`;
+    function updateSingleRowVisuals(itemId) {
+      const item = LINEN_ITEMS.find(i => i.id === itemId);
+      if (!item) return;
 
+      const rowEl = document.getElementById(`row_${itemId}`);
+      const badgeContainer = document.getElementById(`badge_${itemId}`);
+      const inputEl = document.getElementById(`input_${itemId}`);
+      const status = getStockStatus(quantities[itemId], item.max);
+
+      if (badgeContainer) {
+        badgeContainer.innerHTML = status.badgeHtml;
+      }
+      if (rowEl) {
+        rowEl.className = `transition-colors px-4 sm:px-6 py-4 ${status.rowBg}`;
+      }
+      if (inputEl) {
+        inputEl.classList.remove('border-palette-amber', 'border-palette-magenta', 'border-palette-sky', 'border-palette-indigo/20');
+        if (status.code === 'low') inputEl.classList.add('border-palette-amber');
+        else if (status.code === 'exceed') inputEl.classList.add('border-palette-magenta');
+        else if (status.code === 'optimal') inputEl.classList.add('border-palette-sky');
+        else inputEl.classList.add('border-palette-indigo/20');
+      }
+
+      updateSummaryKPIs();
+    }
+
+    /**
+     * Render all filtered Linen Registry rows
+     */
+    function renderRegistryRows() {
+      const container = document.getElementById('registryRowsContainer');
+      const emptyState = document.getElementById('emptyFilterState');
+      if (!container) return;
+
+      const query = searchQuery.trim().toLowerCase();
+      let visibleCount = 0;
+      let htmlBuffer = '';
+
+      LINEN_ITEMS.forEach((item, index) => {
+        const val = quantities[item.id];
+        const status = getStockStatus(val, item.max);
+
+        const matchesFilter = activeFilter === 'all' || status.code === activeFilter;
+        const matchesSearch = !query || item.name.toLowerCase().includes(query) || item.category.toLowerCase().includes(query);
+
+        if (!matchesFilter || !matchesSearch) return;
+        visibleCount++;
+
+        const inputVal = (val !== null && val !== undefined && val !== '') ? val : '';
+        let inputBorderClass = 'border-palette-indigo/20';
+        if (status.code === 'low') inputBorderClass = 'border-palette-amber';
+        else if (status.code === 'exceed') inputBorderClass = 'border-palette-magenta';
+        else if (status.code === 'optimal') inputBorderClass = 'border-palette-sky';
+
+        htmlBuffer += `
+          <div id="row_${item.id}" class="transition-colors px-4 sm:px-6 py-4 ${status.rowBg}">
+            
+            <!-- Mobile Card Layout (< md) -->
+            <div class="md:hidden space-y-3">
+              <div class="flex items-start justify-between gap-2">
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs font-bold px-2 py-0.5 rounded-lg bg-palette-indigo/10 text-palette-indigo">#${index + 1}</span>
+                    <span class="text-xs font-medium text-palette-plum">${item.category}</span>
+                  </div>
+                  <h3 class="text-base font-bold text-palette-indigo mt-1">${item.name}</h3>
+                  <p class="text-xs text-palette-indigo/65 mt-0.5">
+                    Date: <span class="font-semibold text-palette-indigo">${currentDateStr}</span> &bull; Max: <span class="font-bold text-palette-indigo">${item.max} pcs</span>
+                  </p>
+                </div>
+                <div id="badge_mobile_${item.id}" class="shrink-0 text-right">
+                  ${status.badgeHtml}
+                </div>
+              </div>
+
+              <div class="flex items-center justify-between gap-2 pt-1">
+                <span class="text-xs font-semibold text-palette-indigo/70">Kuantiti Update:</span>
+                <div class="flex items-center gap-2">
+                  <button
+                    type="button"
+                    data-action="dec"
+                    data-id="${item.id}"
+                    aria-label="Kurangkan ${item.name}"
+                    class="w-10 h-10 rounded-2xl bg-palette-indigo/10 hover:bg-palette-indigo hover:text-white text-palette-indigo font-bold text-lg flex items-center justify-center active:scale-95 transition-all cursor-pointer"
+                  >−</button>
+                  <input
+                    type="number"
+                    min="0"
+                    inputmode="numeric"
+                    data-id="${item.id}"
+                    data-mobile="true"
+                    value="${inputVal}"
+                    placeholder="0"
+                    class="qty-input w-20 h-10 text-center rounded-2xl bg-white border-2 ${inputBorderClass} focus:border-palette-magenta focus:outline-none text-palette-indigo font-bold text-base"
+                  />
+                  <button
+                    type="button"
+                    data-action="inc"
+                    data-id="${item.id}"
+                    aria-label="Tambah ${item.name}"
+                    class="w-10 h-10 rounded-2xl bg-palette-sky/35 hover:bg-palette-indigo hover:text-white text-palette-indigo font-bold text-lg flex items-center justify-center active:scale-95 transition-all cursor-pointer"
+                  >+</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Desktop / Tablet Table Grid Layout (>= md) -->
+            <div class="hidden md:grid md:grid-cols-12 md:items-center md:gap-2">
+              <div class="col-span-1 text-sm font-bold text-palette-indigo/50">${index + 1}</div>
+              
+              <div class="col-span-2">
+                <span class="inline-flex items-center px-2.5 py-1 rounded-xl bg-palette-indigo/5 text-palette-indigo text-xs font-semibold">
+                  ${currentDateStr}
+                </span>
+              </div>
+
+              <div class="col-span-3 pr-2">
+                <p class="text-sm lg:text-base font-bold text-palette-indigo leading-tight">${item.name}</p>
+                <span class="text-xs font-medium text-palette-plum/80">${item.category}</span>
+              </div>
+
+              <div class="col-span-1 text-center">
+                <span class="inline-block px-2.5 py-1 rounded-xl bg-palette-sky/25 text-palette-indigo font-bold text-xs">
+                  ${item.max} pcs
+                </span>
+              </div>
+
+              <div class="col-span-3 flex items-center justify-center gap-2">
+                <button
+                  type="button"
+                  data-action="dec"
+                  data-id="${item.id}"
+                  aria-label="Kurangkan ${item.name}"
+                  class="w-9 h-9 rounded-xl bg-palette-indigo/10 hover:bg-palette-indigo hover:text-white text-palette-indigo font-bold text-base flex items-center justify-center active:scale-95 transition-all cursor-pointer"
+                >−</button>
+                <input
+                  id="input_${item.id}"
+                  type="number"
+                  min="0"
+                  inputmode="numeric"
+                  data-id="${item.id}"
+                  value="${inputVal}"
+                  placeholder="—"
+                  class="qty-input w-20 h-9 text-center rounded-xl bg-white border-2 ${inputBorderClass} focus:border-palette-magenta focus:outline-none text-palette-indigo font-bold text-sm"
+                />
+                <button
+                  type="button"
+                  data-action="inc"
+                  data-id="${item.id}"
+                  aria-label="Tambah ${item.name}"
+                  class="w-9 h-9 rounded-xl bg-palette-sky/35 hover:bg-palette-indigo hover:text-white text-palette-indigo font-bold text-base flex items-center justify-center active:scale-95 transition-all cursor-pointer"
+                >+</button>
+              </div>
+
+              <div id="badge_${item.id}" class="col-span-2 text-right">
+                ${status.badgeHtml}
+              </div>
+            </div>
+
+          </div>
+        `;
+      });
+
+      container.innerHTML = htmlBuffer;
+
+      if (emptyState) {
+        if (visibleCount === 0) emptyState.classList.remove('hidden');
+        else emptyState.classList.add('hidden');
+      }
+
+      updateSummaryKPIs();
+    }
+
+    /**
+     * Handle quantity change for a specific item ID
+     */
+    function handleQuantityChange(itemId, rawValue) {
+      if (rawValue === '' || rawValue === null || rawValue === undefined) {
+        quantities[itemId] = null;
+      } else {
+        const parsed = Math.max(0, Math.floor(Number(rawValue)));
+        quantities[itemId] = Number.isNaN(parsed) ? null : parsed;
+      }
+
+      saveDateQuantities();
+
+      // Sync both mobile & desktop inputs and badges for this item
+      const allInputs = document.querySelectorAll(`.qty-input[data-id="${itemId}"]`);
+      allInputs.forEach(inp => {
+        const targetVal = quantities[itemId] === null ? '' : String(quantities[itemId]);
+        if (inp.value !== targetVal) {
+          inp.value = targetVal;
+        }
+      });
+
+      const item = LINEN_ITEMS.find(i => i.id === itemId);
+      if (item) {
+        const status = getStockStatus(quantities[itemId], item.max);
+        const mobileBadge = document.getElementById(`badge_mobile_${itemId}`);
+        if (mobileBadge) mobileBadge.innerHTML = status.badgeHtml;
+      }
+
+      updateSingleRowVisuals(itemId);
+
+      // Re-render only if a specific status filter is active so items filter dynamically
+      if (activeFilter !== 'all') {
+        renderRegistryRows();
+      }
+    }
+
+    /**
+     * Generate and download a clean PDF Report (with native print fallback)
+     */
+    function generatePDFReport() {
       try {
-        if (window.jspdf && typeof window.jspdf.jsPDF === 'function') {
+        if (window.jspdf && window.jspdf.jsPDF) {
           const { jsPDF } = window.jspdf;
           const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 
-          // Header Banner using Palette Indigo (#160654) & Magenta accent (#BF0275)
-          doc.setFillColor(22, 6, 84);
-          doc.rect(0, 0, 210, 34, 'F');
-          doc.setFillColor(191, 2, 117);
-          doc.rect(0, 34, 210, 2.5, 'F');
+          // Header Banner
+          doc.setFillColor(22, 6, 84); // #160654 Deep Indigo
+          doc.rect(0, 0, 210, 32, 'F');
 
           doc.setTextColor(255, 255, 255);
           doc.setFont('helvetica', 'bold');
@@ -1027,347 +940,277 @@
 
           doc.setFont('helvetica', 'normal');
           doc.setFontSize(10);
-          doc.setTextColor(126, 188, 230);
-          doc.text(`Registry Date: ${formatDisplayDate(selectedDate)} (${selectedDate})`, 14, 23);
-          doc.text(`Generated: ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`, 14, 29);
+          doc.setTextColor(126, 188, 230); // #7EBCE6 Sky Blue
+          doc.text(`Registry Date: ${currentDateStr} (${formatReadableDate(currentDateStr)})`, 14, 23);
 
-          // Summary Strip Box
-          doc.setFillColor(244, 248, 252);
-          doc.roundedRect(14, 41, 182, 14, 3, 3, 'F');
+          // Summary Statistics Row
+          let totalUpdated = 0;
+          let totalMax = 0;
+          let lowCount = 0;
+          let exceedCount = 0;
+
+          const tableBody = LINEN_ITEMS.map((item, idx) => {
+            totalMax += item.max;
+            const qty = quantities[item.id];
+            const status = getStockStatus(qty, item.max);
+            const displayQty = (qty !== null && qty !== undefined) ? `${qty} pcs` : 'Pending';
+            if (qty !== null && qty !== undefined) totalUpdated += Number(qty);
+            if (status.code === 'low') lowCount++;
+            if (status.code === 'exceed') exceedCount++;
+
+            return [
+              idx + 1,
+              currentDateStr,
+              item.name,
+              `${item.max} pcs`,
+              displayQty,
+              status.code === 'pending' ? 'Pending' : `${status.label} (${status.detail})`
+            ];
+          });
+
           doc.setTextColor(22, 6, 84);
-          doc.setFontSize(9.5);
           doc.setFont('helvetica', 'bold');
-          doc.text(`Total Counted: ${totalUpdated} / ${totalMax} pcs`, 18, 49.5);
-          doc.setTextColor(214, 128, 0);
-          doc.text(`Low Stock: ${lowCount} items`, 95, 49.5);
-          doc.setTextColor(191, 2, 117);
-          doc.text(`Exceed Stock: ${exceedCount} items`, 148, 49.5);
+          doc.setFontSize(10);
+          doc.text(
+            `Total Updated: ${totalUpdated} / ${totalMax} pcs   |   Low Stock: ${lowCount} items   |   Exceed Stock: ${exceedCount} items`,
+            14,
+            40
+          );
 
-          if (typeof doc.autoTable === 'function') {
-            const tableBody = rows.map(r => [
-              String(r.no),
-              r.date,
-              r.itemName,
-              `${r.maxQty} pcs`,
-              r.updatedQtyDisplay,
-              r.statusLabel
-            ]);
-
-            doc.autoTable({
-              startY: 60,
-              head: [['#', 'Date', 'Linen Item', 'Max Qty', 'Updated Qty', 'Stock Indicator']],
-              body: tableBody,
-              theme: 'grid',
-              headStyles: {
-                fillColor: [78, 5, 71],
-                textColor: [255, 255, 255],
-                fontStyle: 'bold',
-                fontSize: 9,
-                halign: 'left'
-              },
-              styles: {
-                fontSize: 8.5,
-                cellPadding: 2.8,
-                textColor: [22, 6, 84]
-              },
-              columnStyles: {
-                0: { cellWidth: 10, halign: 'center' },
-                1: { cellWidth: 25 },
-                2: { cellWidth: 58, fontStyle: 'bold' },
-                3: { cellWidth: 24, halign: 'center' },
-                4: { cellWidth: 28, halign: 'center', fontStyle: 'bold' },
-                5: { cellWidth: 37, fontStyle: 'bold' }
-              },
-              didParseCell: function (data) {
-                if (data.section === 'body' && data.column.index === 5) {
-                  const val = String(data.cell.raw || '');
-                  if (val.startsWith('Low Stock')) {
-                    data.cell.styles.textColor = [196, 114, 0];
-                    data.cell.styles.fillColor = [255, 248, 232];
-                  } else if (val.startsWith('Exceed Stock')) {
-                    data.cell.styles.textColor = [191, 2, 117];
-                    data.cell.styles.fillColor = [253, 236, 246];
-                  } else if (val.startsWith('Optimal')) {
-                    data.cell.styles.textColor = [22, 6, 84];
-                    data.cell.styles.fillColor = [232, 245, 253];
-                  } else {
-                    data.cell.styles.textColor = [130, 140, 160];
-                  }
+          doc.autoTable({
+            startY: 45,
+            head: [['#', 'Date', 'Linen Item', 'Max Qty', 'Updated Qty', 'Stock Indicator']],
+            body: tableBody,
+            theme: 'grid',
+            headStyles: {
+              fillColor: [78, 5, 71], // #4E0547 Deep Plum
+              textColor: [255, 255, 255],
+              fontStyle: 'bold',
+              fontSize: 9
+            },
+            bodyStyles: {
+              fontSize: 8.5,
+              textColor: [22, 6, 84]
+            },
+            columnStyles: {
+              0: { cellWidth: 10, halign: 'center' },
+              1: { cellWidth: 24, halign: 'center' },
+              2: { cellWidth: 56 },
+              3: { cellWidth: 22, halign: 'center' },
+              4: { cellWidth: 26, halign: 'center' },
+              5: { cellWidth: 44 }
+            },
+            didParseCell: function (data) {
+              if (data.section === 'body' && data.column.index === 5) {
+                const text = String(data.cell.raw || '');
+                if (text.startsWith('Low Stock')) {
+                  data.cell.styles.textColor = [180, 105, 0];
+                  data.cell.styles.fontStyle = 'bold';
+                } else if (text.startsWith('Exceed Stock')) {
+                  data.cell.styles.textColor = [191, 2, 117];
+                  data.cell.styles.fontStyle = 'bold';
+                } else if (text.startsWith('Optimal')) {
+                  data.cell.styles.textColor = [22, 6, 84];
+                  data.cell.styles.fontStyle = 'bold';
                 }
               }
-            });
-          } else {
-            // Clean manual table fallback if AutoTable plugin wasn't loaded
-            let yPos = 64;
-            doc.setFontSize(8.5);
-            doc.setFont('helvetica', 'bold');
-            doc.text('#   Date         Linen Item                       Max     Updated     Indicator', 14, yPos);
-            yPos += 5;
-            doc.setFont('helvetica', 'normal');
-            rows.forEach(r => {
-              doc.text(
-                `${String(r.no).padEnd(4)}${r.date.padEnd(13)}${r.itemName.padEnd(32)}${String(r.maxQty).padEnd(8)}${r.updatedQtyDisplay.padEnd(12)}${r.statusLabel}`,
-                14,
-                yPos
-              );
-              yPos += 5.5;
-            });
-          }
+            },
+            didDrawPage: function () {
+              doc.setFontSize(8);
+              doc.setTextColor(120, 120, 140);
+              doc.text('Made by Ezlyana 2026 — Linen Registry Daily Tracker', 14, 290);
+            }
+          });
 
-          const pdfBlob = doc.output('blob');
-          triggerBlobDownload(pdfBlob, filename);
-          showToast(`PDF berjaya dijana: ${filename}`);
+          const filename = `Linen_Registry_${currentDateStr}.pdf`;
+          doc.save(filename);
+          showToast(`Laporan PDF (${filename}) berjaya dijana!`);
           return;
         }
       } catch (err) {
-        // Fallback to native print-to-PDF below
+        // Fallback to native print dialog if blocked by iframe sandbox
       }
 
-      // Guaranteed zero-dependency Print / Save as PDF fallback
-      showToast('Membuka tetingkap Save as PDF...', 'success');
-      setTimeout(() => {
-        window.print();
-      }, 250);
+      showToast('Membuka tetingkap cetak PDF...', false);
+      setTimeout(() => window.print(), 300);
     }
 
     /**
-     * Escapes XML special characters for native SpreadsheetML fallback
+     * Export registry data to Excel (.xlsx) and show Google Drive helper modal
      */
-    function escapeXml(str) {
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&apos;');
-    }
+    function exportToExcelForDrive() {
+      const filename = `Linen_Registry_${currentDateStr}.xlsx`;
+      const filenameDisplay = document.getElementById('generatedExcelFilename');
+      if (filenameDisplay) filenameDisplay.textContent = filename;
 
-    /**
-     * Generates an Excel file (.xlsx via SheetJS or native SpreadsheetML .xls fallback)
-     * and opens the Google Drive upload helper modal
-     */
-    function exportExcelForDrive() {
-      const { rows, totalMax, totalUpdated, shortDate } = getReportDataset();
-      let filename = `Linen_Registry_${selectedDate}.xlsx`;
-      let downloaded = false;
-
-      // Attempt 1: SheetJS (.xlsx)
       try {
-        if (typeof XLSX !== 'undefined' && XLSX.utils) {
-          const sheetRows = [
-            ['LINEN REGISTRY DAILY REPORT'],
-            ['Date', formatDisplayDate(selectedDate), 'ISO Date', selectedDate],
-            [],
-            ['No.', 'Date', 'Linen Item', 'Category', 'Max Qty (pcs)', 'Updated Qty (pcs)', 'Variance', 'Stock Indicator']
-          ];
+        if (window.XLSX) {
+          const rows = LINEN_ITEMS.map((item, idx) => {
+            const qty = quantities[item.id];
+            const status = getStockStatus(qty, item.max);
+            const numericQty = (qty !== null && qty !== undefined) ? Number(qty) : '';
+            const diff = (qty !== null && qty !== undefined) ? (Number(qty) - item.max) : '';
 
-          rows.forEach(r => {
-            sheetRows.push([
-              r.no,
-              r.date,
-              r.itemName,
-              r.category,
-              r.maxQty,
-              r.updatedQtyNumeric,
-              r.variance,
-              r.statusLabel
-            ]);
+            return {
+              'No.': idx + 1,
+              'Date': currentDateStr,
+              'Linen Item': item.name,
+              'Category': item.category,
+              'Max Quantity (pcs)': item.max,
+              'Updated Quantity (pcs)': numericQty,
+              'Variance (pcs)': diff,
+              'Stock Status': status.label
+            };
           });
 
-          sheetRows.push([]);
-          sheetRows.push(['', '', 'TOTAL', '', totalMax, totalUpdated, totalUpdated - totalMax, '']);
-
-          const worksheet = XLSX.utils.aoa_to_sheet(sheetRows);
+          const worksheet = XLSX.utils.json_to_sheet(rows);
           worksheet['!cols'] = [
             { wch: 6 },
             { wch: 14 },
             { wch: 28 },
             { wch: 16 },
+            { wch: 20 },
+            { wch: 22 },
             { wch: 16 },
-            { wch: 18 },
-            { wch: 12 },
-            { wch: 22 }
+            { wch: 18 }
           ];
 
           const workbook = XLSX.utils.book_new();
-          XLSX.utils.book_append_sheet(workbook, worksheet, `Linen_${selectedDate}`);
-
-          const wbOut = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-          const blob = new Blob([wbOut], {
-            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+          XLSX.utils.book_append_sheet(workbook, worksheet, 'Linen Registry');
+          XLSX.writeFile(workbook, filename);
+        } else {
+          // CSV Fallback if XLSX library is unavailable
+          let csv = 'No.,Date,Linen Item,Category,Max Quantity (pcs),Updated Quantity (pcs),Stock Status\n';
+          LINEN_ITEMS.forEach((item, idx) => {
+            const qty = quantities[item.id] ?? '';
+            const status = getStockStatus(quantities[item.id], item.max);
+            csv += `${idx + 1},${currentDateStr},"${item.name}","${item.category}",${item.max},${qty},"${status.label}"\n`;
           });
-          triggerBlobDownload(blob, filename);
-          downloaded = true;
+          const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+          const link = document.createElement('a');
+          link.href = URL.createObjectURL(blob);
+          link.download = `Linen_Registry_${currentDateStr}.csv`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
         }
-      } catch (err) {
-        downloaded = false;
+      } catch (e) {
+        // Even if download is restricted in mobile webview preview, open Google Drive modal with Copy Table option
       }
 
-      // Attempt 2: Zero-dependency Excel XML Spreadsheet (.xls) fallback
-      if (!downloaded) {
-        filename = `Linen_Registry_${selectedDate}.xls`;
-        const headerCells = ['No.', 'Date', 'Linen Item', 'Category', 'Max Qty (pcs)', 'Updated Qty (pcs)', 'Variance', 'Stock Indicator']
-          .map(h => `<Cell><Data ss:Type="String">${escapeXml(h)}</Data></Cell>`)
-          .join('');
-
-        const bodyRowsXml = rows
-          .map(r => {
-            const qtyCell =
-              r.updatedQtyNumeric !== ''
-                ? `<Cell><Data ss:Type="Number">${r.updatedQtyNumeric}</Data></Cell>`
-                : `<Cell><Data ss:Type="String"></Data></Cell>`;
-            const varCell =
-              r.variance !== ''
-                ? `<Cell><Data ss:Type="Number">${r.variance}</Data></Cell>`
-                : `<Cell><Data ss:Type="String"></Data></Cell>`;
-
-            return `<Row>
-              <Cell><Data ss:Type="Number">${r.no}</Data></Cell>
-              <Cell><Data ss:Type="String">${escapeXml(r.date)}</Data></Cell>
-              <Cell><Data ss:Type="String">${escapeXml(r.itemName)}</Data></Cell>
-              <Cell><Data ss:Type="String">${escapeXml(r.category)}</Data></Cell>
-              <Cell><Data ss:Type="Number">${r.maxQty}</Data></Cell>
-              ${qtyCell}
-              ${varCell}
-              <Cell><Data ss:Type="String">${escapeXml(r.statusLabel)}</Data></Cell>
-            </Row>`;
-          })
-          .join('');
-
-        const xmlContent = `<?xml version="1.0"?>
-<?mso-application progid="Excel.Sheet"?>
-<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
- xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
- <Worksheet ss:Name="Linen_${escapeXml(selectedDate)}">
-  <Table>
-   <Row><Cell><Data ss:Type="String">LINEN REGISTRY DAILY REPORT (${escapeXml(shortDate)})</Data></Cell></Row>
-   <Row>${headerCells}</Row>
-   ${bodyRowsXml}
-  </Table>
- </Worksheet>
-</Workbook>`;
-
-        const xlsBlob = new Blob([xmlContent], { type: 'application/vnd.ms-excel' });
-        triggerBlobDownload(xlsBlob, filename);
+      const driveModal = document.getElementById('driveModal');
+      if (driveModal) {
+        driveModal.classList.remove('hidden');
+        driveModal.classList.add('flex');
       }
-
-      // Open Google Drive Helper Modal
-      document.getElementById('generatedExcelFilename').textContent = filename;
-      const modal = document.getElementById('driveModal');
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
-      showToast(`Fail Excel (${filename}) sedia untuk Google Drive!`);
+      showToast('Fail Excel sedia untuk Google Drive!');
     }
 
     /**
-     * Copies tab-separated table data to clipboard for instant pasting into Google Sheets
+     * Copy TSV table data to clipboard for instant paste into Google Sheets
      */
-    function copyRegistryTableToClipboard() {
-      const { rows } = getReportDataset();
-      const lines = [
-        ['No.', 'Date', 'Linen Item', 'Category', 'Max Qty (pcs)', 'Updated Qty (pcs)', 'Stock Indicator'].join('\t')
-      ];
-      rows.forEach(r => {
-        lines.push([
-          r.no,
-          r.date,
-          r.itemName,
-          r.category,
-          r.maxQty,
-          r.updatedQtyNumeric === '' ? 0 : r.updatedQtyNumeric,
-          r.statusLabel
-        ].join('\t'));
+    function copyTableForGoogleSheets() {
+      let tsv = 'No.\tDate\tLinen Item\tCategory\tMax Qty (pcs)\tUpdated Qty (pcs)\tStock Indicator\n';
+      LINEN_ITEMS.forEach((item, idx) => {
+        const qty = quantities[item.id] !== null && quantities[item.id] !== undefined ? quantities[item.id] : '';
+        const status = getStockStatus(quantities[item.id], item.max);
+        tsv += `${idx + 1}\t${currentDateStr}\t${item.name}\t${item.category}\t${item.max}\t${qty}\t${status.label}\n`;
       });
 
-      const textArea = document.createElement('textarea');
-      textArea.value = lines.join('\n');
-      textArea.style.position = 'fixed';
-      textArea.style.opacity = '0';
-      document.body.appendChild(textArea);
-      textArea.select();
+      const tempArea = document.createElement('textarea');
+      tempArea.value = tsv;
+      tempArea.style.position = 'fixed';
+      tempArea.style.left = '-9999px';
+      document.body.appendChild(tempArea);
+      tempArea.select();
       try {
         document.execCommand('copy');
-        showToast('Data jadual disalin! Anda boleh terus Paste (Ctrl+V) ke Google Sheets.');
-      } catch (e) {
-        showToast('Sila muat naik fail Excel terus ke Google Drive.', 'warning');
+        showToast('Jadual berjaya disalin! Boleh terus Paste (Ctrl+V) ke Google Sheets.');
+      } catch (err) {
+        showToast('Gagal menyalin jadual. Sila muat naik fail Excel terus ke Google Drive.', true);
       }
-      document.body.removeChild(textArea);
+      document.body.removeChild(tempArea);
     }
 
     /**
-     * Synchronizes date input UI and Today badge
-     */
-    function syncDateUI() {
-      const dateInput = document.getElementById('registryDateInput');
-      const formattedEl = document.getElementById('formattedDateDisplay');
-      const todayBadge = document.getElementById('todayBadge');
-
-      dateInput.value = selectedDate;
-      formattedEl.textContent = formatDisplayDate(selectedDate);
-
-      if (selectedDate === getLocalTodayISO()) {
-        todayBadge.textContent = 'Today';
-        todayBadge.className = 'text-xs font-semibold px-2.5 py-0.5 rounded-full bg-palette-sky/35 text-palette-indigo';
-      } else {
-        todayBadge.textContent = 'Selected Date';
-        todayBadge.className = 'text-xs font-semibold px-2.5 py-0.5 rounded-full bg-palette-amber/25 text-palette-indigo';
-      }
-    }
-
-    /**
-     * Initializes event listeners and default state on page load
+     * Initialize Application Events & Initial Render
      */
     function initApp() {
-      // Set default date to current local date
-      selectedDate = getLocalTodayISO();
-      syncDateUI();
-      loadDateQuantities(selectedDate);
-      renderRegistryRows();
+      const todayStr = getTodayLocalDateStr();
+      currentDateStr = todayStr;
 
-      // Restore saved custom Google Drive URL if user previously entered one
-      const savedDriveUrl = safeStorageGet(DRIVE_URL_STORAGE_KEY);
-      if (savedDriveUrl) {
-        document.getElementById('customDriveUrlInput').value = savedDriveUrl;
-        document.getElementById('openGoogleDriveLink').href = savedDriveUrl;
+      const dateInput = document.getElementById('registryDateInput');
+      const formattedDisplay = document.getElementById('formattedDateDisplay');
+      const todayBadge = document.getElementById('todayBadge');
+
+      if (dateInput) {
+        dateInput.value = currentDateStr;
+      }
+      if (formattedDisplay) {
+        formattedDisplay.textContent = formatReadableDate(currentDateStr);
       }
 
-      // Calendar Date Picker change event
-      document.getElementById('registryDateInput').addEventListener('change', (e) => {
-        if (!e.target.value) return;
-        selectedDate = e.target.value;
-        syncDateUI();
-        loadDateQuantities(selectedDate);
+      loadDateQuantities(currentDateStr);
+      renderRegistryRows();
+
+      // 1. Date Picker Change Event
+      dateInput?.addEventListener('change', (e) => {
+        const chosen = e.target.value || getTodayLocalDateStr();
+        currentDateStr = chosen;
+        if (formattedDisplay) {
+          formattedDisplay.textContent = formatReadableDate(currentDateStr);
+        }
+        if (todayBadge) {
+          if (currentDateStr === getTodayLocalDateStr()) {
+            todayBadge.textContent = 'Today';
+            todayBadge.className = 'text-xs font-semibold px-2.5 py-0.5 rounded-full bg-palette-sky/30 text-palette-indigo';
+          } else {
+            todayBadge.textContent = 'Selected';
+            todayBadge.className = 'text-xs font-semibold px-2.5 py-0.5 rounded-full bg-palette-amber/25 text-palette-indigo';
+          }
+        }
+        loadDateQuantities(currentDateStr);
         renderRegistryRows();
-        showToast(`Rekod tarikh ${formatShortDate(selectedDate)} dipaparkan.`);
+        showToast(`Memaparkan rekod untuk ${formatReadableDate(currentDateStr)}`);
       });
 
-      // Delegated events for +/- stepper buttons & quantity inputs
+      // 2. Delegated Input & +/- Button Events on Registry Rows
       const rowsContainer = document.getElementById('registryRowsContainer');
-      rowsContainer.addEventListener('click', (e) => {
+      rowsContainer?.addEventListener('input', (e) => {
+        const target = e.target;
+        if (target && target.classList.contains('qty-input')) {
+          const itemId = target.getAttribute('data-id');
+          if (itemId) handleQuantityChange(itemId, target.value);
+        }
+      });
+
+      rowsContainer?.addEventListener('click', (e) => {
         const btn = e.target.closest('button[data-action]');
         if (!btn) return;
-        const itemId = btn.getAttribute('data-id');
         const action = btn.getAttribute('data-action');
-        if (action === 'inc') adjustItemQuantity(itemId, 1);
-        if (action === 'dec') adjustItemQuantity(itemId, -1);
+        const itemId = btn.getAttribute('data-id');
+        if (!itemId) return;
+
+        const currentVal = quantities[itemId];
+        const baseNum = (currentVal === null || currentVal === undefined) ? 0 : Number(currentVal);
+
+        if (action === 'inc') {
+          handleQuantityChange(itemId, baseNum + 1);
+        } else if (action === 'dec') {
+          handleQuantityChange(itemId, Math.max(0, baseNum - 1));
+        }
       });
 
-      rowsContainer.addEventListener('input', (e) => {
-        if (!e.target.classList.contains('qty-input')) return;
-        const itemId = e.target.getAttribute('data-id');
-        setItemQuantity(itemId, e.target.value);
-      });
-
-      // Status Filter Pills
-      document.getElementById('filterPillsContainer').addEventListener('click', (e) => {
+      // 3. Status Filter Pills
+      const filterContainer = document.getElementById('filterPillsContainer');
+      filterContainer?.addEventListener('click', (e) => {
         const pill = e.target.closest('.filter-pill');
         if (!pill) return;
 
-        activeFilter = pill.getAttribute('data-filter');
-
-        document.querySelectorAll('.filter-pill').forEach(btn => {
-          btn.classList.remove('active', 'bg-palette-indigo', 'text-white');
-          btn.classList.add('bg-[#F4F8FC]', 'text-palette-indigo');
+        activeFilter = pill.getAttribute('data-filter') || 'all';
+        document.querySelectorAll('.filter-pill').forEach(p => {
+          p.classList.remove('active', 'bg-palette-indigo', 'text-white');
+          p.classList.add('bg-[#F4F8FC]', 'text-palette-indigo');
         });
         pill.classList.add('active', 'bg-palette-indigo', 'text-white');
         pill.classList.remove('bg-[#F4F8FC]', 'text-palette-indigo');
@@ -1375,57 +1218,70 @@
         renderRegistryRows();
       });
 
-      // Search Input
-      document.getElementById('searchInput').addEventListener('input', (e) => {
-        searchQuery = e.target.value.trim();
+      // 4. Search Input
+      const searchInput = document.getElementById('searchInput');
+      searchInput?.addEventListener('input', (e) => {
+        searchQuery = e.target.value || '';
         renderRegistryRows();
       });
 
-      // Quick Action: Fill All Max
-      document.getElementById('btnFillMax').addEventListener('click', () => {
+      // 5. Fill All Max Button
+      document.getElementById('btnFillMax')?.addEventListener('click', () => {
         LINEN_ITEMS.forEach(item => {
-          quantitiesById[item.id] = item.max;
+          quantities[item.id] = item.max;
         });
         saveDateQuantities();
         renderRegistryRows();
-        showToast('Semua 19 item telah diisi mengikut kuantiti maksimum.');
+        showToast(`Semua ${LINEN_ITEMS.length} item telah diisi mengikut had maksimum!`);
       });
 
-      // Quick Action: Reset All for selected date
-      document.getElementById('btnResetAll').addEventListener('click', () => {
+      // 6. Reset Button
+      document.getElementById('btnResetAll')?.addEventListener('click', () => {
         LINEN_ITEMS.forEach(item => {
-          quantitiesById[item.id] = null;
+          quantities[item.id] = null;
         });
         saveDateQuantities();
         renderRegistryRows();
-        showToast('Semua input kuantiti untuk tarikh ini telah dikosongkan.', 'warning');
+        showToast('Semua kuantiti untuk tarikh ini telah dikosongkan.');
       });
 
-      // Primary Export Buttons
-      document.getElementById('btnGeneratePdf').addEventListener('click', generatePdfReport);
-      document.getElementById('btnExportDriveExcel').addEventListener('click', exportExcelForDrive);
+      // 7. Export PDF & Excel (Google Drive) Buttons
+      document.getElementById('btnGeneratePdf')?.addEventListener('click', generatePDFReport);
+      document.getElementById('btnExportDriveExcel')?.addEventListener('click', exportToExcelForDrive);
 
-      // Google Drive Modal Controls
+      // 8. Google Drive Modal Controls
       const driveModal = document.getElementById('driveModal');
       const closeModal = () => {
+        if (!driveModal) return;
         driveModal.classList.add('hidden');
         driveModal.classList.remove('flex');
       };
 
-      document.getElementById('closeDriveModal').addEventListener('click', closeModal);
-      document.getElementById('doneDriveModal').addEventListener('click', closeModal);
-      document.getElementById('btnCopySheetData').addEventListener('click', copyRegistryTableToClipboard);
-      driveModal.addEventListener('click', (e) => {
-        if (e.target === driveModal) closeModal();
-      });
+      document.getElementById('closeDriveModal')?.addEventListener('click', closeModal);
+      document.getElementById('doneDriveModal')?.addEventListener('click', closeModal);
+      document.getElementById('btnCopySheetData')?.addEventListener('click', copyTableForGoogleSheets);
 
-      document.getElementById('customDriveUrlInput').addEventListener('input', (e) => {
+      // Restore saved Google Drive link if customized
+      const driveUrlInput = document.getElementById('customDriveUrlInput');
+      const openDriveLink = document.getElementById('openGoogleDriveLink');
+      try {
+        const savedUrl = localStorage.getItem(DRIVE_URL_KEY);
+        if (savedUrl && driveUrlInput && openDriveLink) {
+          driveUrlInput.value = savedUrl;
+          openDriveLink.href = savedUrl;
+        }
+      } catch (e) {}
+
+      driveUrlInput?.addEventListener('input', (e) => {
         const val = e.target.value.trim() || 'https://drive.google.com/drive/my-drive';
-        document.getElementById('openGoogleDriveLink').href = val;
-        safeStorageSet(DRIVE_URL_STORAGE_KEY, val);
+        if (openDriveLink) openDriveLink.href = val;
+        try {
+          localStorage.setItem(DRIVE_URL_KEY, val);
+        } catch (err) {}
       });
     }
 
+    // Run immediately if DOM is ready, or on DOMContentLoaded
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', initApp);
     } else {
